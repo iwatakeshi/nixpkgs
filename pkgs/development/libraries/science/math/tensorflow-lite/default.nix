@@ -169,6 +169,21 @@ stdenv.mkDerivation rec {
       # remove executable bit from headers
       chmod -x "$path"
     done
+
+    mkdir -p "$out/lib/pkgconfig"
+    {
+      echo "prefix=$out"
+      echo 'exec_prefix=''${prefix}'
+      echo 'libdir=''${prefix}/lib'
+      echo 'includedir=''${prefix}/include'
+      echo
+      echo "Name: tensorflow-lite"
+      echo "Description: Machine learning for mobile and IoT"
+      echo "URL: https://www.tensorflow.org/lite/"
+      echo "Version: 2.5.0"
+      echo 'Libs: -L''${libdir} -ltensorflow-lite'
+      echo 'Cflags: -I''${includedir}'
+    } > "$out/lib/pkgconfig/tensorflow-lite.pc"
   '';
 
   meta = with lib; {
