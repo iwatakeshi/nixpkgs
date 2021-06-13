@@ -16273,6 +16273,8 @@ in
 
   libebur128 = callPackage ../development/libraries/libebur128 { };
 
+  libedgetpu = callPackage ../development/libraries/science/robotics/libedgetpu { };
+
   libedit = callPackage ../development/libraries/libedit { };
 
   libelf = if stdenv.isFreeBSD
