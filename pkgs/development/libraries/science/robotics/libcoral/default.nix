@@ -82,7 +82,6 @@ stdenv.mkDerivation {
     (mesonOption "dmabuf_tests" withDmabufTests)
     (mesonOption "examples" withExamples)
     (mesonOption "benchmarks" withBenchmarks)
-    "-Db_lto=true"
     "-Dcpp_std=c++17"
   ];
 
