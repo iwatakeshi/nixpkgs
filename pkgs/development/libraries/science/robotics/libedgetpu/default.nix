@@ -1,4 +1,5 @@
 { abseil-cpp
+, cmake
 , fetchFromGitHub
 , flatbuffers
 , lib
@@ -12,6 +13,12 @@
 , withPci ? true
 , withUsb ? true
 }:
+let
+  libedgetpu-abseil-cpp = abseil-cpp.overrideAttrs (old: {
+    cmakeFlags = [ "-DCMAKE_CXX_STANDARD=11" ];
+  });
+  mesonOption = name: enabled: "-D${name}=${if enabled then "enabled" else "disabled"}";
+in
 stdenv.mkDerivation rec {
   pname = "libedgetpu";
   version = "1.0.0";
@@ -25,13 +32,14 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     meson
+    cmake  # used to detect dependencies
     ninja
     pkg-config
     xxd
   ];
 
   buildInputs = [
-    abseil-cpp
+    libedgetpu-abseil-cpp
     flatbuffers
     libusb
     tensorflow-lite
@@ -39,10 +47,8 @@ stdenv.mkDerivation rec {
 
   mesonFlags = [
     "--buildtype=release"
-    "-Dpci=${if withPci then "enabled" else "disabled"}"
-    "-Dusb=${if withUsb then "enabled" else "disabled"}"
-    "-Dcpp_std=c++17"
-    "-Db_lto=true"
+    (mesonOption "pci" withPci)
+    (mesonOption "usb" withUsb)
   ];
 
   postInstall = ''
