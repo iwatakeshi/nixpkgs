@@ -14,9 +14,6 @@
 , withUsb ? true
 }:
 let
-  libedgetpu-abseil-cpp = abseil-cpp.overrideAttrs (old: {
-    cmakeFlags = [ "-DCMAKE_CXX_STANDARD=11" ];
-  });
   mesonOption = name: enabled: "-D${name}=${if enabled then "enabled" else "disabled"}";
 in
 stdenv.mkDerivation rec {
@@ -39,7 +36,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    libedgetpu-abseil-cpp
+    abseil-cpp
     flatbuffers
     libusb
     tensorflow-lite
@@ -49,6 +46,7 @@ stdenv.mkDerivation rec {
     "--buildtype=release"
     (mesonOption "pci" withPci)
     (mesonOption "usb" withUsb)
+    "-Dcpp_std=c++17"
   ];
 
   postInstall = ''
