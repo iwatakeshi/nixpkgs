@@ -27,10 +27,6 @@
 }:
 
 let
-  libcoral-abseil-cpp = abseil-cpp.overrideAttrs (old: {
-    cmakeFlags = [ "-DCMAKE_CXX_STANDARD=11" ];
-  });
-
   # libcoral requires a special version of eigen
   libcoral-eigen = eigen.overrideAttrs (old: {
     patches = [ ./libcoral-eigen-include-dir.patch ];
@@ -64,7 +60,7 @@ stdenv.mkDerivation {
   ];
 
   buildInputs = [
-    libcoral-abseil-cpp
+    abseil-cpp
     libcoral-eigen
     flatbuffers
     glog
@@ -87,6 +83,7 @@ stdenv.mkDerivation {
     (mesonOption "examples" withExamples)
     (mesonOption "benchmarks" withBenchmarks)
     "-Db_lto=true"
+    "-Dcpp_std=c++17"
   ];
 
   doCheck = withTests;
