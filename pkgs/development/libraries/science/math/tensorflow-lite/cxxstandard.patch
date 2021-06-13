@@ -1,0 +1,15 @@
+diff --git a/tensorflow/lite/tools/make/Makefile b/tensorflow/lite/tools/make/Makefile
+index de4b4dabc1b..e4cef2c0582 100644
+--- a/tensorflow/lite/tools/make/Makefile
++++ b/tensorflow/lite/tools/make/Makefile
+@@ -62,8 +62,9 @@ LIBS := \
+ # There are no rules for compiling objects for the host system (since we don't
+ # generate things like the protobuf compiler that require that), so all of
+ # these settings are for the target compiler.
++CXXSTANDARD := -std=c++11
+ CFLAGS := -O3 -DNDEBUG -DCPU_SETSIZE=__CPU_SETSIZE -fPIC $(EXTRA_CFLAGS)
+-CXXFLAGS := $(CFLAGS) --std=c++11 $(EXTRA_CXXFLAGS)
++CXXFLAGS := $(CFLAGS) $(CXXSTANDARD) $(EXTRA_CXXFLAGS)
+ LDOPTS := -L/usr/local/lib
+ ARFLAGS := -r
+ TARGET_TOOLCHAIN_PREFIX :=
