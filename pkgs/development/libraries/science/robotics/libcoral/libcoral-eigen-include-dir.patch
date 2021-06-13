@@ -1,0 +1,65 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7ba7d3872..c6b046d33 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,5 @@
+ # cmake_minimum_require must be the first command of the file
+-cmake_minimum_required(VERSION 3.5.0)
++cmake_minimum_required(VERSION 3.7)
+ 
+ project(Eigen3)
+ 
+@@ -440,12 +440,6 @@ set(PKGCONFIG_INSTALL_DIR
+     CACHE STRING "The directory relative to CMAKE_PREFIX_PATH where eigen3.pc is installed"
+     )
+ 
+-foreach(var INCLUDE_INSTALL_DIR CMAKEPACKAGE_INSTALL_DIR PKGCONFIG_INSTALL_DIR)
+-  if(IS_ABSOLUTE "${${var}}")
+-    message(FATAL_ERROR "${var} must be relative to CMAKE_PREFIX_PATH. Got: ${${var}}")
+-  endif()
+-endforeach()
+-
+ # similar to set_target_properties but append the property instead of overwriting it
+ macro(ei_add_target_property target prop value)
+ 
+@@ -462,13 +456,6 @@ install(FILES
+   DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel
+   )
+ 
+-if(EIGEN_BUILD_PKGCONFIG)
+-    configure_file(eigen3.pc.in eigen3.pc @ONLY)
+-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/eigen3.pc
+-        DESTINATION ${PKGCONFIG_INSTALL_DIR}
+-        )
+-endif()
+-
+ install(DIRECTORY Eigen DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
+ 
+ 
+@@ -589,8 +576,15 @@ set ( EIGEN_VERSION_MAJOR  ${EIGEN_WORLD_VERSION} )
+ set ( EIGEN_VERSION_MINOR  ${EIGEN_MAJOR_VERSION} )
+ set ( EIGEN_VERSION_PATCH  ${EIGEN_MINOR_VERSION} )
+ set ( EIGEN_DEFINITIONS "")
+-set ( EIGEN_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/${INCLUDE_INSTALL_DIR}" )
+ set ( EIGEN_ROOT_DIR ${CMAKE_INSTALL_PREFIX} )
++GNUInstallDirs_get_absolute_install_dir(EIGEN_INCLUDE_DIR INCLUDE_INSTALL_DIR)
++
++if(EIGEN_BUILD_PKGCONFIG)
++    configure_file(eigen3.pc.in eigen3.pc @ONLY)
++    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/eigen3.pc
++        DESTINATION ${PKGCONFIG_INSTALL_DIR}
++        )
++endif()
+ 
+ include (CMakePackageConfigHelpers)
+ 
+diff --git a/eigen3.pc.in b/eigen3.pc.in
+index 3368a3aa1..d6778bf06 100644
+--- a/eigen3.pc.in
++++ b/eigen3.pc.in
+@@ -6,4 +6,4 @@ Description: A C++ template library for linear algebra: vectors, matrices, and r
+ Requires:
+ Version: @EIGEN_VERSION_NUMBER@
+ Libs:
+-Cflags: -I${prefix}/@INCLUDE_INSTALL_DIR@
++Cflags: -I@EIGEN_INCLUDE_DIR@

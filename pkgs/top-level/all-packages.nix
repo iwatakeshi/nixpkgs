@@ -16275,6 +16275,8 @@ in
 
   libedgetpu = callPackage ../development/libraries/science/robotics/libedgetpu { };
 
+  libcoral = callPackage ../development/libraries/science/robotics/libcoral { };
+
   libedit = callPackage ../development/libraries/libedit { };
 
   libelf = if stdenv.isFreeBSD
