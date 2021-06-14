@@ -124,8 +124,7 @@ stdenv.mkDerivation rec {
           ];
     in
     ''
-      # enter the vendoring lair of doom
-
+      # welcome to the vendoring lair of doom
       prefix="$PWD/tensorflow/lite/tools/make/downloads"
 
       mkdir -p "$prefix"
@@ -170,6 +169,8 @@ stdenv.mkDerivation rec {
       chmod -x "$path"
     done
 
+    # create a pkgconfig file to allow dependent systems like meson, to find
+    # tensorflow-lite
     mkdir -p "$out/lib/pkgconfig"
     {
       echo "prefix=$out"
@@ -180,7 +181,7 @@ stdenv.mkDerivation rec {
       echo "Name: tensorflow-lite"
       echo "Description: Machine learning for mobile and IoT"
       echo "URL: https://www.tensorflow.org/lite/"
-      echo "Version: 2.5.0"
+      echo "Version: ${version}"
       echo 'Libs: -L''${libdir} -ltensorflow-lite'
       echo 'Cflags: -I''${includedir}'
     } > "$out/lib/pkgconfig/tensorflow-lite.pc"
