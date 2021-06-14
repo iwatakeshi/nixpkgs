@@ -145,8 +145,8 @@ stdenv.mkDerivation rec {
       # tensorflow lite expects to compile abseil into `libtensorflow-lite.a`
       ln -s ${abseil-cpp.src} "$prefix/absl"
 
-      # set CXXSTANDARD=c++17 here because abseil-cpp in nixpkgs is set as
-      # such and would be used in dependents like libedgetpu
+      # use -std=c++17 because nixpkgs abseil-cpp is compiled with -std=c++17
+      # linker errors abound in dependents if we don't do this
       buildFlagsArray+=(
         INCLUDES="-I $PWD ${includes}"
         CXXSTANDARD="-std=c++17"
