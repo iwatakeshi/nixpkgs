@@ -18,12 +18,8 @@
 , stdenv
 , tensorflow-lite
 , withBenchmarks ? false
-  # dmabuf only builds some integration tests using gstreamer + dmabuf
-  # sadly, they depend on files that exist only on the coral devboard
-  # they can certainly be built, but will fail when executed
-, withDmabufTests ? false
 , withExamples ? false
-, withTests ? true
+, withTests ? [ "cpu" ]
 }:
 
 let
@@ -37,7 +33,7 @@ let
       sha256 = "1y3f2jvimb5i904f4n37h23cv2pkdlbz8656s0kga1y7c0p50wif";
     };
   });
-  mesonOption = name: enabled: "-D${name}=${if enabled then "enabled" else "disabled"}";
+  withAnyTests = (lib.length withTests) != 0;
 in
 stdenv.mkDerivation {
   pname = "libcoral";
@@ -46,8 +42,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "cpcloud";
     repo = "libcoral";
-    rev = "720b9d45c359ea5a4f3cf9e2036e38f9ce08c987";
-    sha256 = "1xlk4pfbcsy24nz1fx8w42kv88cp77i22hyp8nwjn1agvi2ixz95";
+    rev = "a3d3df621be14af100ec4e2b88339ad982678fe1";
+    sha256 = "0i9jrrn95xm9pk86iiq5m39xd7acgpvzfw1jnhk4zq1gqn1yc796";
     fetchSubmodules = true;
   };
 
@@ -61,36 +57,33 @@ stdenv.mkDerivation {
 
   buildInputs = [
     abseil-cpp
-    libcoral-eigen
     flatbuffers
     glog
+    libcoral-eigen
     libedgetpu
     tensorflow-lite
-  ] ++ lib.optionals (withTests || withDmabufTests || withBenchmarks) [
+  ] ++ lib.optionals (withAnyTests || withBenchmarks) [
     gbenchmark
-  ] ++ lib.optionals (withTests || withDmabufTests) [
+  ] ++ lib.optionals withAnyTests [
     gmock
     gtest
-  ] ++ lib.optionals withDmabufTests (with gst_all_1; [
-    gst-plugins-base
-    gstreamer
-  ]);
+  ] ++ lib.optionals (lib.elem "dmabuf" withTests) [
+    gst_all_1.gst-plugins-base
+    gst_all_1.gstreamer
+  ];
 
   mesonFlags = [
     "--buildtype=release"
-    (mesonOption "tests" withTests)
-    (mesonOption "dmabuf_tests" withDmabufTests)
-    (mesonOption "examples" withExamples)
-    (mesonOption "benchmarks" withBenchmarks)
+    "-Dtests=${lib.concatStringsSep "," withTests}"
+    "-Dexamples=${if withExamples then "enabled" else "disabled"}"
+    "-Dbenchmarks=${if withBenchmarks then "enabled" else "disabled"}"
     "-Dcpp_std=c++17"
   ];
 
-  doCheck = withTests;
+  doCheck = withAnyTests;
 
-  # We can only run the 'cpu' test suite here. All other
-  # test suites require access to 1 or more edge TPUs.
-  checkPhase = lib.optional withTests ''
-    meson test --suite=cpu
+  checkPhase = lib.optional withAnyTests ''
+    meson test
   '';
 
   meta = with lib; {
@@ -98,6 +91,6 @@ stdenv.mkDerivation {
     homepage = "https://coral.ai/";
     license = licenses.asl20;
     maintainers = with maintainers; [ cpcloud ];
-    platforms = tensorflow-lite.meta.platforms;
+    platforms = libedgetpu.meta.platforms;
   };
 }
