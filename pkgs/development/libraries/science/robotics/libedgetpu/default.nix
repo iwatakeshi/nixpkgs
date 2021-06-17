@@ -23,8 +23,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "cpcloud";
     repo = "libedgetpu";
-    rev = "6f9abff0492bf03f20d3a3e366ed810fa102cade";
-    sha256 = "04s061cm931655j93a43nz42y5jmswp8bxvdkp6f5p4pmxcbim98";
+    rev = "a1678e68373766d0eff643fd01c4b4b39010d567";
+    sha256 = "0zxpfzhb7amn4f2z7ar1whk6nshq7llwwix8s0h8fyz0jbyhc9x6";
   };
 
   nativeBuildInputs = [
@@ -60,6 +60,6 @@ stdenv.mkDerivation rec {
     homepage = "https://coral.ai/";
     license = licenses.asl20;
     maintainers = with maintainers; [ cpcloud ];
-    platforms = [ "x86_64-linux" "aarch64-linux" ];
+    platforms = tensorflow-lite.meta.platforms;
   };
 }
