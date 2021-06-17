@@ -42,8 +42,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "cpcloud";
     repo = "libcoral";
-    rev = "a3d3df621be14af100ec4e2b88339ad982678fe1";
-    sha256 = "0i9jrrn95xm9pk86iiq5m39xd7acgpvzfw1jnhk4zq1gqn1yc796";
+    rev = "281535980febd41a14e18cfd34297ab578506318";
+    sha256 = "078blivnqg06c99642xbcvnh05502r7b33skmirj36zbg770hzg8";
     fetchSubmodules = true;
   };
 
