@@ -16,10 +16,12 @@
 , ninja
 , pkg-config
 , stdenv
+, stdenvAdapters
 , tensorflow-lite
 , withBenchmarks ? false
 , withExamples ? false
 , withTests ? [ "cpu" ]
+, lto ? false
 }:
 
 let
@@ -35,7 +37,7 @@ let
   });
   withAnyTests = (lib.length withTests) != 0;
 in
-stdenv.mkDerivation {
+(stdenvAdapters.useGoldLinker stdenv).mkDerivation {
   pname = "libcoral";
   version = "1.0.0";
 
@@ -78,6 +80,7 @@ stdenv.mkDerivation {
     "-Dexamples=${if withExamples then "enabled" else "disabled"}"
     "-Dbenchmarks=${if withBenchmarks then "enabled" else "disabled"}"
     "-Dcpp_std=c++17"
+    "-Db_lto=${lib.boolToString lto}"
   ];
 
   doCheck = withAnyTests;
