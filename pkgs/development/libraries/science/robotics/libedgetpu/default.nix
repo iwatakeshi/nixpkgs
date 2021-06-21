@@ -8,15 +8,14 @@
 , ninja
 , pkg-config
 , stdenv
+, stdenvAdapters
 , tensorflow-lite
 , xxd
 , withPci ? true
 , withUsb ? true
+, lto ? false
 }:
-let
-  mesonOption = name: enabled: "-D${name}=${if enabled then "enabled" else "disabled"}";
-in
-stdenv.mkDerivation rec {
+(stdenvAdapters.useGoldLinker stdenv).mkDerivation rec {
   pname = "libedgetpu";
   version = "1.0.0";
 
@@ -44,9 +43,10 @@ stdenv.mkDerivation rec {
 
   mesonFlags = [
     "--buildtype=release"
-    (mesonOption "pci" withPci)
-    (mesonOption "usb" withUsb)
+    "-Dpci=${if withPci then "enabled" else "disabled"}"
+    "-Dusb=${if withUsb then "enabled" else "disabled"}"
     "-Dcpp_std=c++17"
+    "-Db_lto=${lib.boolToString lto}"
   ];
 
   postInstall = ''
