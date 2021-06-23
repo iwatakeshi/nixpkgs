@@ -46,7 +46,7 @@ in
     owner = "cpcloud";
     repo = "libcoral";
     rev = "98da0a8bff80cbfcc971bd7a20e8e88723b71ba8";
-    sha256 = "0000000000000000000000000000000000000000000000000000";
+    sha256 = "1grrcvlc98xmm10r5gyiwk4l12lp2si53va5bcw8fzbx34b1x1jx";
     fetchSubmodules = true;
   };
 
