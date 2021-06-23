@@ -15,7 +15,10 @@
 , withUsb ? true
 , lto ? false
 }:
-(stdenvAdapters.useGoldLinker stdenv).mkDerivation rec {
+let
+  linkerEnv = if lto then stdenvAdapters.useGoldLinker else lib.id;
+in
+(linkerEnv stdenv).mkDerivation rec {
   pname = "libedgetpu";
   version = "1.0.0";
 
