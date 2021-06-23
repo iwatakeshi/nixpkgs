@@ -36,16 +36,17 @@ let
     };
   });
   withAnyTests = (lib.length withTests) != 0;
+  linkerEnv = if lto then stdenvAdapters.useGoldLinker else lib.id;
 in
-(stdenvAdapters.useGoldLinker stdenv).mkDerivation {
+(linkerEnv stdenv).mkDerivation {
   pname = "libcoral";
   version = "1.0.0";
 
   src = fetchFromGitHub {
     owner = "cpcloud";
     repo = "libcoral";
-    rev = "281535980febd41a14e18cfd34297ab578506318";
-    sha256 = "078blivnqg06c99642xbcvnh05502r7b33skmirj36zbg770hzg8";
+    rev = "98da0a8bff80cbfcc971bd7a20e8e88723b71ba8";
+    sha256 = "0000000000000000000000000000000000000000000000000000";
     fetchSubmodules = true;
   };
 
