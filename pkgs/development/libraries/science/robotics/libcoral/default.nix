@@ -45,8 +45,8 @@ in
   src = fetchFromGitHub {
     owner = "cpcloud";
     repo = "libcoral";
-    rev = "98da0a8bff80cbfcc971bd7a20e8e88723b71ba8";
-    sha256 = "1grrcvlc98xmm10r5gyiwk4l12lp2si53va5bcw8fzbx34b1x1jx";
+    rev = "306f61478a2f15b99d2fa8f1ef0c3f81d5ddc218";
+    sha256 = "1gcsfq82cxmxxvvpwbssn78z8zkf92y02i74q1c8pd9q1cy8qjmk";
     fetchSubmodules = true;
   };
 
