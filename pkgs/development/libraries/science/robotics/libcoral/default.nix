@@ -18,6 +18,7 @@
 , stdenv
 , stdenvAdapters
 , tensorflow-lite
+, buildType ? "release"
 , withBenchmarks ? false
 , withExamples ? false
 , withTests ? [ "cpu" ]
@@ -76,7 +77,7 @@ in
   ];
 
   mesonFlags = [
-    "--buildtype=release"
+    "--buildtype=${buildType}"
     "-Dtests=${lib.concatStringsSep "," withTests}"
     "-Dexamples=${if withExamples then "enabled" else "disabled"}"
     "-Dbenchmarks=${if withBenchmarks then "enabled" else "disabled"}"
