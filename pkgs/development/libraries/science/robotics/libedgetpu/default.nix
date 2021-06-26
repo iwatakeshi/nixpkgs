@@ -11,7 +11,7 @@
 , stdenvAdapters
 , tensorflow-lite
 , xxd
-, buildType ? "release",
+, buildType ? "release"
 , withPci ? true
 , withUsb ? true
 , lto ? false
