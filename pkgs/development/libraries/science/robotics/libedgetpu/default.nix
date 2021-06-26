@@ -11,6 +11,7 @@
 , stdenvAdapters
 , tensorflow-lite
 , xxd
+, buildType ? "release",
 , withPci ? true
 , withUsb ? true
 , lto ? false
@@ -45,7 +46,7 @@ in
   ];
 
   mesonFlags = [
-    "--buildtype=release"
+    "--buildtype=${buildType}"
     "-Dpci=${if withPci then "enabled" else "disabled"}"
     "-Dusb=${if withUsb then "enabled" else "disabled"}"
     "-Dcpp_std=c++17"
