@@ -44,14 +44,13 @@ llvmPackages_12.stdenv.mkDerivation {
   pname = "libcoral";
   version = "1.0.0";
 
-  src = /home/cloud/src/libcoral;
-  # src = fetchFromGitHub {
-  #   owner = "cpcloud";
-  #   repo = "libcoral";
-  #   rev = "306f61478a2f15b99d2fa8f1ef0c3f81d5ddc218";
-  #   sha256 = "1gcsfq82cxmxxvvpwbssn78z8zkf92y02i74q1c8pd9q1cy8qjmk";
-  #   fetchSubmodules = true;
-  # };
+  src = fetchFromGitHub {
+    owner = "cpcloud";
+    repo = "libcoral";
+    rev = "306f61478a2f15b99d2fa8f1ef0c3f81d5ddc218";
+    sha256 = "1gcsfq82cxmxxvvpwbssn78z8zkf92y02i74q1c8pd9q1cy8qjmk";
+    fetchSubmodules = true;
+  };
 
   nativeBuildInputs = [
     meson
