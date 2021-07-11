@@ -12,6 +12,7 @@
 , gtest
 , lib
 , libedgetpu
+, llvmPackages_12
 , meson
 , ninja
 , pkg-config
@@ -23,6 +24,7 @@
 , withExamples ? false
 , withTests ? [ "cpu" ]
 , lto ? false
+, wrapBintoolsWith
 }:
 
 let
@@ -37,9 +39,8 @@ let
     };
   });
   withAnyTests = (lib.length withTests) != 0;
-  linkerEnv = if lto then stdenvAdapters.useGoldLinker else lib.id;
 in
-(linkerEnv stdenv).mkDerivation {
+llvmPackages_12.stdenv.mkDerivation {
   pname = "libcoral";
   version = "1.0.0";
 
@@ -61,6 +62,9 @@ in
   ];
 
   buildInputs = [
+    (wrapBintoolsWith {
+      inherit (llvmPackages_12) bintools;
+    })
     abseil-cpp
     flatbuffers
     glog
@@ -75,7 +79,9 @@ in
   ] ++ lib.optionals (lib.elem "dmabuf" withTests) [
     gst_all_1.gst-plugins-base
     gst_all_1.gstreamer
-  ];
+  ] ++ (with llvmPackages_12; [ clang lld ]);
+
+  NIX_CFLAGS_LINK = "-fuse-ld=lld";
 
   mesonFlags = [
     "--buildtype=${buildType}"
