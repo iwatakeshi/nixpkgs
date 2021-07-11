@@ -25,8 +25,8 @@ llvmPackages_12.stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "cpcloud";
     repo = "libedgetpu";
-    rev = "a1678e68373766d0eff643fd01c4b4b39010d567";
-    sha256 = "0zxpfzhb7amn4f2z7ar1whk6nshq7llwwix8s0h8fyz0jbyhc9x6";
+    rev = "f922dfb5c963d3f7d23dfe512417694113122f08";
+    sha256 = "0fw7lbahjlzpx1v7nj30hkci3x0y7z7qhaj9y7428vgdiqjgml4w";
   };
 
   nativeBuildInputs = [
