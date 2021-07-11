@@ -4,6 +4,7 @@
 , flatbuffers
 , lib
 , libusb
+, llvmPackages_12
 , meson
 , ninja
 , pkg-config
@@ -15,11 +16,9 @@
 , withPci ? true
 , withUsb ? true
 , lto ? false
+, wrapBintoolsWith
 }:
-let
-  linkerEnv = if lto then stdenvAdapters.useGoldLinker else lib.id;
-in
-(linkerEnv stdenv).mkDerivation rec {
+llvmPackages_12.stdenv.mkDerivation rec {
   pname = "libedgetpu";
   version = "1.0.0";
 
@@ -39,6 +38,9 @@ in
   ];
 
   buildInputs = [
+    (wrapBintoolsWith {
+      inherit (llvmPackages_12) bintools;
+    })
     abseil-cpp
     flatbuffers
     libusb
