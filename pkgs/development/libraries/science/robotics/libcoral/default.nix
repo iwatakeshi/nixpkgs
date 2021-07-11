@@ -47,8 +47,8 @@ llvmPackages_12.stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "cpcloud";
     repo = "libcoral";
-    rev = "306f61478a2f15b99d2fa8f1ef0c3f81d5ddc218";
-    sha256 = "1gcsfq82cxmxxvvpwbssn78z8zkf92y02i74q1c8pd9q1cy8qjmk";
+    rev = "cd9c5047a3db2f56a13e48d2f5ca60122d9092a1";
+    sha256 = "0pgsv68hw6wksr62q5g8qkavlbcf1azrp3hl31swg4qdvy28nkyg";
     fetchSubmodules = true;
   };
 
