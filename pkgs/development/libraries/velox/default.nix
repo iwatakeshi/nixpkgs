@@ -85,35 +85,19 @@ stdenv.mkDerivation rec {
     "-DCMAKE_CXX_STANDARD=17"
     "-DCMAKE_BUILD_TYPE=Release"
     "-DBUILD_SHARED_LIBS=OFF"
-    "-DVELOX_ENABLE_S3=OFF"
+    "-DVELOX_ENABLE_S3=ON"
     "-DVELOX_ENABLE_BENCHMARKS=OFF"
     "-DVELOX_ENABLE_EXAMPLES=OFF"
     "-DVELOX_BUILD_BENCHMARKS_LARGE=OFF"
-    # "-DAWSSDK_CORE_HEADER_FILE=${aws-sdk-cpp}/include/aws/core/Aws.h"
+    "-DAWSSDK_CORE_HEADER_FILE=${aws-sdk-cpp}/include/aws/core/Aws.h"
   ];
 
   doInstallCheck = true;
-  # GTEST_FILTER =
-  #   let
-  #     # Upstream Issue: https://issues.apache.org/jira/browse/ARROW-11398
-  #     filteredTests = lib.optionals stdenv.hostPlatform.isAarch64 [
-  #       "TestFilterKernelWithNumeric/3.CompareArrayAndFilterRandomNumeric"
-  #       "TestFilterKernelWithNumeric/7.CompareArrayAndFilterRandomNumeric"
-  #       "TestCompareKernel.PrimitiveRandomTests"
-  #     ] ++ lib.optionals enableS3 [
-  #       "S3OptionsTest.FromUri"
-  #       "S3RegionResolutionTest.NonExistentBucket"
-  #       "S3RegionResolutionTest.PublicBucket"
-  #       "S3RegionResolutionTest.RestrictedBucket"
-  #       "TestMinioServer.Connect"
-  #       "TestS3FS.*"
-  #       "TestS3FSGeneric.*"
-  #     ];
-  #   in
-  #   lib.optionalString doInstallCheck "-${builtins.concatStringsSep ":" filteredTests}";
-  # installCheckInputs = [];
+  GTEST_FILTER = "";
   installCheckPhase = ''
-    ctest --build-run-dir release -j $NIX_BUILD_CORES -VV --output-on-failure
+    echo $PWD
+    ls $PWD
+    ctest --build-run-dir build/release -j $NIX_BUILD_CORES --output-on-failure
   '';
 
   meta = with lib; {
@@ -123,6 +107,4 @@ stdenv.mkDerivation rec {
     platforms = platforms.unix;
     maintainers = with maintainers; [ cpcloud ];
   };
-  # passthru = {
-  # };
 }
