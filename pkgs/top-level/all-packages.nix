@@ -35062,6 +35062,8 @@ with pkgs;
 
   vcluster = callPackage ../applications/networking/cluster/vcluster {};
 
+  velox = callPackage ../development/libraries/velox { };
+
   vnote = libsForQt5.callPackage ../applications/office/vnote { };
 
   sshportal = callPackage ../servers/sshportal { };

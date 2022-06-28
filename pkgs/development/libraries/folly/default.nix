@@ -1,4 +1,5 @@
-{ lib, stdenv
+{ lib
+, stdenv
 , fetchFromGitHub
 , boost
 , cmake
@@ -7,13 +8,18 @@
 , fmt_8
 , gflags
 , glog
+, libaio
+, libdwarf
 , libevent
 , libiberty
+, libsodium
 , libunwind
+, liburing
 , lz4
 , ninja
 , openssl
 , pkg-config
+, snappy
 , xz
 , zlib
 , zstd
@@ -43,9 +49,14 @@ stdenv.mkDerivation rec {
     double-conversion
     glog
     gflags
+    libaio
+    libdwarf
+    liburing
     libevent
+    libsodium
     libiberty
     openssl
+    snappy
     lz4
     xz
     zlib
@@ -54,8 +65,20 @@ stdenv.mkDerivation rec {
     zstd
   ];
 
-  NIX_CFLAGS_COMPILE = [ "-DFOLLY_MOBILE=${if follyMobile then "1" else "0"}" "-fpermissive" ];
-  cmakeFlags = [ "-DBUILD_SHARED_LIBS=ON" ];
+  NIX_CFLAGS_COMPILE = [
+    "-DFOLLY_MOBILE=${if follyMobile then "1" else "0"}"
+    "-fpermissive"
+    "-mavx2"
+    "-mfma"
+    "-mavx"
+    "-mf16c"
+    "-mlzcnt"
+  ];
+  cmakeFlags = [
+    "-DBUILD_SHARED_LIBS=ON"
+    "-Wno-dev"
+    "-DCMAKE_CXX_STANDARD=17"
+  ];
 
   meta = with lib; {
     description = "An open-source C++ library developed and used at Facebook";

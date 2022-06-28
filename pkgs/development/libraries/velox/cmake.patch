@@ -1,0 +1,948 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 326cfdde..2d2c5640 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -371,5 +371,5 @@ include_directories(.)
+ # generates an installable makefile.
+ install(FILES velox/type/Type.h DESTINATION "include/velox")
+ 
+-add_subdirectory(third_party)
++add_subdirectory(third_party EXCLUDE_FROM_ALL)
+ add_subdirectory(velox)
+diff --git a/scripts/setup-helper-functions.sh b/scripts/setup-helper-functions.sh
+index f77e11bf..43ba8c81 100644
+--- a/scripts/setup-helper-functions.sh
++++ b/scripts/setup-helper-functions.sh
+@@ -100,7 +100,7 @@ function get_cxx_flags {
+     ;;
+ 
+     "avx")
+-      echo -n "-mavx2 -mfma -mavx -mf16c -masm=intel -mlzcnt -std=c++17"
++      echo -n "-mavx2 -mfma -mavx -mf16c -mlzcnt"
+     ;;
+ 
+     "sse")
+diff --git a/velox/buffer/CMakeLists.txt b/velox/buffer/CMakeLists.txt
+index 9fff194c..d0542cce 100644
+--- a/velox/buffer/CMakeLists.txt
++++ b/velox/buffer/CMakeLists.txt
+@@ -20,3 +20,7 @@ target_link_libraries(velox_buffer velox_memory velox_common_base
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_buffer)
++
++install(FILES StringViewBufferHolder.h Buffer.h DESTINATION "include/velox/buffer")
+diff --git a/velox/codegen/CMakeLists.txt b/velox/codegen/CMakeLists.txt
+index bb287125..072cb011 100644
+--- a/velox/codegen/CMakeLists.txt
++++ b/velox/codegen/CMakeLists.txt
+@@ -22,3 +22,7 @@ endif()
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_codegen)
++
++install(FILES Codegen-Stubs.h platform-support.h Codegen.h DESTINATION "include/velox/codegen")
+diff --git a/velox/common/base/CMakeLists.txt b/velox/common/base/CMakeLists.txt
+index d025463a..0fb09cfa 100644
+--- a/velox/common/base/CMakeLists.txt
++++ b/velox/common/base/CMakeLists.txt
+@@ -35,3 +35,7 @@ endif()
+ if(${VELOX_ENABLE_BENCHMARKS})
+   add_subdirectory(benchmarks)
+ endif()
++
++install(TARGETS velox_exception velox_common_base)
++
++install(FILES RuntimeMetrics.h Exceptions.h SelectivityInfo.h BitSet.h Macros.h SuccinctPrinter.h Counters.h ClassName.h RandomUtil.h SimdUtil-inl.h GTestMacros.h CoalesceIo.h Range.h BitUtil.h SimdUtil.h StatsReporter.h BloomFilter.h RawVector.h AsyncSource.h Nulls.h Portability.h CompareFlags.h VeloxException.h DESTINATION "include/velox/base")
+diff --git a/velox/common/caching/CMakeLists.txt b/velox/common/caching/CMakeLists.txt
+index 238ebda0..8180b521 100644
+--- a/velox/common/caching/CMakeLists.txt
++++ b/velox/common/caching/CMakeLists.txt
+@@ -33,3 +33,7 @@ target_link_libraries(
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_caching)
++
++install(FILES FileGroupStats.h SsdFileTracker.h CachedFactory.h FileIds.h SsdFile.h AsyncDataCache.h SimpleLRUCache.h ScanTracker.h SsdCache.h StringIdMap.h DESTINATION "include/velox/caching")
+diff --git a/velox/common/encode/CMakeLists.txt b/velox/common/encode/CMakeLists.txt
+index 9e1dee5b..b23f0fee 100644
+--- a/velox/common/encode/CMakeLists.txt
++++ b/velox/common/encode/CMakeLists.txt
+@@ -14,3 +14,7 @@
+ 
+ add_library(velox_encode Base64.cpp)
+ target_link_libraries(velox_encode ${FOLLY_WITH_DEPENDENCIES})
++
++install(TARGETS velox_encode)
++
++install(FILES Base64.h Coding.h UInt128.h DESTINATION "include/velox/encode")
+diff --git a/velox/common/file/CMakeLists.txt b/velox/common/file/CMakeLists.txt
+index 64a2b44a..877ccca9 100644
+--- a/velox/common/file/CMakeLists.txt
++++ b/velox/common/file/CMakeLists.txt
+@@ -32,3 +32,7 @@ if(${VELOX_BUILD_TESTING})
+ 
+   add_subdirectory(benchmark)
+ endif()
++
++install(TARGETS velox_file)
++
++install(FILES File.h FileSystems.h DESTINATION "include/velox/file")
+diff --git a/velox/common/file/benchmark/CMakeLists.txt b/velox/common/file/benchmark/CMakeLists.txt
+index 0b44f627..5f79c589 100644
+--- a/velox/common/file/benchmark/CMakeLists.txt
++++ b/velox/common/file/benchmark/CMakeLists.txt
+@@ -20,3 +20,5 @@ target_link_libraries(velox_read_benchmark_lib velox_file velox_exception
+ add_executable(velox_read_benchmark ReadBenchmarkMain.cpp)
+ 
+ target_link_libraries(velox_read_benchmark velox_read_benchmark_lib)
++
++install(TARGETS velox_read_benchmark_lib)
+diff --git a/velox/common/memory/CMakeLists.txt b/velox/common/memory/CMakeLists.txt
+index d6399efe..116b8ad0 100644
+--- a/velox/common/memory/CMakeLists.txt
++++ b/velox/common/memory/CMakeLists.txt
+@@ -33,3 +33,7 @@ target_link_libraries(velox_memory velox_flag_definitions velox_exception
+ if(NOT VELOX_DISABLE_GOOGLETEST)
+   target_link_libraries(velox_memory gtest)
+ endif()
++
++install(TARGETS velox_memory)
++
++install(FILES HashStringAllocator.h AllocationPool.h MappedMemory.h MmapAllocator.h CompactDoubleList.h ByteStream.h Memory.h StreamArena.h MemoryUsageTracker.h MemoryUsage.h DESTINATION "include/velox/memory")
+diff --git a/velox/common/process/CMakeLists.txt b/velox/common/process/CMakeLists.txt
+index 2dea415c..b253720c 100644
+--- a/velox/common/process/CMakeLists.txt
++++ b/velox/common/process/CMakeLists.txt
+@@ -20,3 +20,7 @@ target_link_libraries(velox_process velox_flag_definitions
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_process)
++
++install(FILES StackTrace.h ProcessBase.h TraceContext.h DESTINATION "include/velox/process")
+diff --git a/velox/common/serialization/CMakeLists.txt b/velox/common/serialization/CMakeLists.txt
+index 99d9f55b..c6523769 100644
+--- a/velox/common/serialization/CMakeLists.txt
++++ b/velox/common/serialization/CMakeLists.txt
+@@ -15,3 +15,7 @@
+ add_library(velox_serialization DeserializationRegistry.cpp)
+ 
+ target_link_libraries(velox_serialization velox_exception)
++
++install(TARGETS velox_serialization)
++
++install(FILES Serializable.h DeserializationRegistry.h Registry.h DESTINATION "include/velox/serialization")
+diff --git a/velox/common/time/CMakeLists.txt b/velox/common/time/CMakeLists.txt
+index a73b4f37..d11afb78 100644
+--- a/velox/common/time/CMakeLists.txt
++++ b/velox/common/time/CMakeLists.txt
+@@ -13,3 +13,7 @@
+ # limitations under the License.
+ 
+ add_library(velox_time Timer.cpp CpuWallTimer.cpp)
++
++install(TARGETS velox_time)
++
++install(FILES CpuWallTimer.h Timer.h DESTINATION "include/velox/time")
+diff --git a/velox/connectors/CMakeLists.txt b/velox/connectors/CMakeLists.txt
+index 7caf4555..372c6b20 100644
+--- a/velox/connectors/CMakeLists.txt
++++ b/velox/connectors/CMakeLists.txt
+@@ -22,3 +22,7 @@ endif()
+ if(${VELOX_ENABLE_TPCH_CONNECTOR})
+   add_subdirectory(tpch)
+ endif()
++
++install(TARGETS velox_connector)
++
++install(FILES Connector.h DESTINATION "include/velox/connectors")
+diff --git a/velox/connectors/hive/CMakeLists.txt b/velox/connectors/hive/CMakeLists.txt
+index 9eca8a89..44ad61ec 100644
+--- a/velox/connectors/hive/CMakeLists.txt
++++ b/velox/connectors/hive/CMakeLists.txt
+@@ -27,3 +27,7 @@ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+   add_subdirectory(benchmarks)
+ endif()
++
++install(TARGETS velox_hive_connector velox_hive_partition_function)
++
++install(FILES HiveConnectorSplit.h HivePartitionFunction.h FileHandle.h HiveConnector.h DESTINATION "include/velox/hive")
+diff --git a/velox/connectors/hive/storage_adapters/hdfs/CMakeLists.txt b/velox/connectors/hive/storage_adapters/hdfs/CMakeLists.txt
+index 44271915..c0cdd7c0 100644
+--- a/velox/connectors/hive/storage_adapters/hdfs/CMakeLists.txt
++++ b/velox/connectors/hive/storage_adapters/hdfs/CMakeLists.txt
+@@ -20,3 +20,7 @@ target_link_libraries(velox_hdfs ${LIBHDFS3})
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_hdfs)
++
++install(FILES HdfsReadFile.h HdfsFileSystem.h DESTINATION "include/velox/hdfs")
+diff --git a/velox/connectors/hive/storage_adapters/s3fs/CMakeLists.txt b/velox/connectors/hive/storage_adapters/s3fs/CMakeLists.txt
+index 9b475c49..ac0a8b0f 100644
+--- a/velox/connectors/hive/storage_adapters/s3fs/CMakeLists.txt
++++ b/velox/connectors/hive/storage_adapters/s3fs/CMakeLists.txt
+@@ -22,3 +22,7 @@ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+   add_subdirectory(benchmark)
+ endif()
++
++install(TARGETS velox_s3fs)
++
++install(FILES S3FileSystem.h S3Util.h DESTINATION "include/velox/s3fs")
+diff --git a/velox/connectors/tpch/CMakeLists.txt b/velox/connectors/tpch/CMakeLists.txt
+index b7123f2f..12534983 100644
+--- a/velox/connectors/tpch/CMakeLists.txt
++++ b/velox/connectors/tpch/CMakeLists.txt
+@@ -19,3 +19,7 @@ target_link_libraries(velox_tpch_connector velox_connector velox_tpch_gen)
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_tpch_connector)
++
++install(FILES TpchConnectorSplit.h TpchConnector.h DESTINATION "include/velox/tpch")
+diff --git a/velox/core/CMakeLists.txt b/velox/core/CMakeLists.txt
+index 24c14816..c4293b6e 100644
+--- a/velox/core/CMakeLists.txt
++++ b/velox/core/CMakeLists.txt
+@@ -28,3 +28,7 @@ target_link_libraries(
+   velox_serialization
+   velox_vector
+   ${FOLLY_WITH_DEPENDENCIES})
++
++install(TARGETS velox_config velox_core)
++
++install(FILES QueryConfig.h ITypedExpr.h PlanNode.h Context.h SimpleFunctionMetadata.h PlanFragment.h Metaprogramming.h Expressions.h CoreTypeSystem.h QueryCtx.h DESTINATION "include/velox/core")
+diff --git a/velox/duckdb/conversion/CMakeLists.txt b/velox/duckdb/conversion/CMakeLists.txt
+index ebf7f4fc..c8366110 100644
+--- a/velox/duckdb/conversion/CMakeLists.txt
++++ b/velox/duckdb/conversion/CMakeLists.txt
+@@ -24,3 +24,7 @@ target_link_libraries(velox_duckdb_parser velox_duckdb_conversion duckdb
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_duckdb_conversion velox_duckdb_parser)
++
++install(FILES DuckConversion.h DuckParser.h DuckWrapper.h DESTINATION "include/velox/conversion")
+diff --git a/velox/duckdb/functions/CMakeLists.txt b/velox/duckdb/functions/CMakeLists.txt
+index 83523719..c52180c8 100644
+--- a/velox/duckdb/functions/CMakeLists.txt
++++ b/velox/duckdb/functions/CMakeLists.txt
+@@ -19,3 +19,7 @@ target_link_libraries(velox_duckdb_functions velox_duckdb_conversion velox_core
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_duckdb_functions)
++
++install(FILES DuckFunctions.h DESTINATION "include/velox/functions")
+diff --git a/velox/dwio/common/CMakeLists.txt b/velox/dwio/common/CMakeLists.txt
+index 338586d8..a21d3c21 100644
+--- a/velox/dwio/common/CMakeLists.txt
++++ b/velox/dwio/common/CMakeLists.txt
+@@ -50,3 +50,7 @@ target_link_libraries(
+   Boost::regex
+   ${FOLLY_WITH_DEPENDENCIES}
+   glog::glog)
++
++install(TARGETS velox_dwio_common)
++
++install(FILES ReaderFactory.h ErrorTolerance.h DataSink.h RandGen.h MetricsLog.h Common.h InputStream.h Adaptor.h Closeable.h Statistics.h ChainedBuffer.h BufferedInput.h CachedBufferedInput.h MemoryInputStream.h DataBuffer.h CacheInputStream.h Options.h DecoderUtil.h StreamIdentifier.h Retry.h ColumnSelector.h TypeWithId.h StreamUtil.h FilterNode.h Reader.h IoStatistics.h SeekableInputStream.h ScanSpec.h FlushPolicy.h TypeUtils.h DESTINATION "include/velox/common")
+diff --git a/velox/dwio/common/compression/CMakeLists.txt b/velox/dwio/common/compression/CMakeLists.txt
+index 4f109da9..6cf21f3f 100644
+--- a/velox/dwio/common/compression/CMakeLists.txt
++++ b/velox/dwio/common/compression/CMakeLists.txt
+@@ -14,3 +14,7 @@
+ 
+ add_library(velox_dwio_common_compression LzoDecompressor.cpp)
+ target_link_libraries(velox_dwio_common_compression ${FOLLY_WITH_DEPENDENCIES})
++
++install(TARGETS velox_dwio_common_compression)
++
++install(FILES LzoDecompressor.h DESTINATION "include/velox/compression")
+diff --git a/velox/dwio/common/encryption/CMakeLists.txt b/velox/dwio/common/encryption/CMakeLists.txt
+index 0e7540db..6ee5d87f 100644
+--- a/velox/dwio/common/encryption/CMakeLists.txt
++++ b/velox/dwio/common/encryption/CMakeLists.txt
+@@ -15,3 +15,7 @@
+ add_library(velox_dwio_common_encryption Encryption.cpp)
+ 
+ target_link_libraries(velox_dwio_common_encryption ${FOLLY_WITH_DEPENDENCIES})
++
++install(TARGETS velox_dwio_common_encryption)
++
++install(FILES TestProvider.h Encryption.h DESTINATION "include/velox/encryption")
+diff --git a/velox/dwio/common/exception/CMakeLists.txt b/velox/dwio/common/exception/CMakeLists.txt
+index 70dd38f8..32cef2dc 100644
+--- a/velox/dwio/common/exception/CMakeLists.txt
++++ b/velox/dwio/common/exception/CMakeLists.txt
+@@ -16,3 +16,7 @@ add_library(velox_dwio_common_exception Exception.cpp Exceptions.cpp)
+ 
+ target_link_libraries(velox_dwio_common_exception ${FOLLY_WITH_DEPENDENCIES}
+                       glog::glog)
++
++install(TARGETS velox_dwio_common_exception)
++
++install(FILES Exceptions.h Exception.h DESTINATION "include/velox/exception")
+diff --git a/velox/dwio/dwrf/common/CMakeLists.txt b/velox/dwio/dwrf/common/CMakeLists.txt
+index 97f79fda..5cb74642 100644
+--- a/velox/dwio/dwrf/common/CMakeLists.txt
++++ b/velox/dwio/dwrf/common/CMakeLists.txt
+@@ -38,3 +38,7 @@ add_library(
+ target_link_libraries(
+   velox_dwio_dwrf_common velox_common_base velox_dwio_common
+   velox_dwio_common_compression velox_dwio_dwrf_proto velox_caching)
++
++install(TARGETS velox_dwio_dwrf_common)
++
++install(FILES FloatingPointDecoder.h NextVisitor.h CompressionBufferPool.h IntDecoder.h DirectDecoder.h Config.h Common.h EncryptionCommon.h RLEv2.h Statistics.h RLEv1.h DataBufferHolder.h EncryptionSpecification.h Compression.h Range.h PagedOutputStream.h IntCodecCommon.h Checksum.h Encryption.h OutputStream.h PagedInputStream.h ByteRLE.h IntEncoder.h Decryption.h DESTINATION "include/velox/common")
+diff --git a/velox/dwio/dwrf/proto/CMakeLists.txt b/velox/dwio/dwrf/proto/CMakeLists.txt
+index d63f90ac..b08a5c93 100644
+--- a/velox/dwio/dwrf/proto/CMakeLists.txt
++++ b/velox/dwio/dwrf/proto/CMakeLists.txt
+@@ -29,3 +29,5 @@ add_library(
+ target_link_libraries(velox_dwio_dwrf_proto protobuf::libprotobuf)
+ target_include_directories(velox_dwio_dwrf_proto
+                            PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/../../../../)
++
++install(TARGETS velox_dwio_dwrf_proto)
+diff --git a/velox/dwio/dwrf/reader/CMakeLists.txt b/velox/dwio/dwrf/reader/CMakeLists.txt
+index c58429f9..72e9267b 100644
+--- a/velox/dwio/dwrf/reader/CMakeLists.txt
++++ b/velox/dwio/dwrf/reader/CMakeLists.txt
+@@ -38,3 +38,7 @@ add_library(
+ target_link_libraries(
+   velox_dwio_dwrf_reader velox_dwio_common velox_dwio_dwrf_common velox_caching
+   velox_dwio_dwrf_utils ${FMT})
++
++install(TARGETS velox_dwio_dwrf_reader)
++
++install(FILES ConstantColumnReader.h SelectiveStringDictionaryColumnReader.h FlatMapHelper.h StripeStream.h SelectiveColumnReaderInternal.h SelectiveStringDirectColumnReader.h SelectiveStructColumnReader.h BinaryStreamReader.h SelectiveColumnReader.h SelectiveFloatingPointColumnReader.h EncodingContext.h StripeDictionaryCache.h ColumnReader.h DwrfReader.h SelectiveIntegerDirectColumnReader.h SelectiveRepeatedColumnReader.h ColumnLoader.h DwrfReaderShared.h ColumnVisitors.h SelectiveTimestampColumnReader.h SelectiveIntegerDictionaryColumnReader.h SelectiveIntegerColumnReader.h StripeMetadataCache.h FlatMapColumnReader.h SelectiveByteRleColumnReader.h StripeReaderBase.h ReaderBase.h DESTINATION "include/velox/reader")
+diff --git a/velox/dwio/dwrf/test/CMakeLists.txt b/velox/dwio/dwrf/test/CMakeLists.txt
+index 8f1f30f1..242f0360 100644
+--- a/velox/dwio/dwrf/test/CMakeLists.txt
++++ b/velox/dwio/dwrf/test/CMakeLists.txt
+@@ -495,3 +495,7 @@ target_link_libraries(
+   ${FOLLY}
+   ${FOLLY_BENCHMARK}
+   ${FMT})
++
++install(TARGETS velox_e2e_filter_test_base)
++
++install(FILES OrcTest.h E2EFilterTestBase.h DESTINATION "include/velox/test")
+diff --git a/velox/dwio/dwrf/test/utils/CMakeLists.txt b/velox/dwio/dwrf/test/utils/CMakeLists.txt
+index ab06169d..04bddc56 100644
+--- a/velox/dwio/dwrf/test/utils/CMakeLists.txt
++++ b/velox/dwio/dwrf/test/utils/CMakeLists.txt
+@@ -31,3 +31,7 @@ target_link_libraries(
+ if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9)
+   target_link_libraries(velox_dwrf_test_utils stdc++fs)
+ endif()
++
++install(TARGETS velox_dwrf_test_utils)
++
++install(FILES DataFiles.h BatchMaker.h MapBuilder.h E2EWriterTestUtil.h FilterGenerator.h DESTINATION "include/velox/utils")
+diff --git a/velox/dwio/dwrf/utils/CMakeLists.txt b/velox/dwio/dwrf/utils/CMakeLists.txt
+index 0f9f472c..0dc2899b 100644
+--- a/velox/dwio/dwrf/utils/CMakeLists.txt
++++ b/velox/dwio/dwrf/utils/CMakeLists.txt
+@@ -22,3 +22,7 @@ add_dependencies(velox_dwio_dwrf_utils velox_dwio_dwrf_proto)
+ 
+ target_link_libraries(velox_dwio_dwrf_utils velox_dwio_dwrf_proto velox_type
+                       velox_memory)
++
++install(TARGETS velox_dwio_dwrf_utils)
++
++install(FILES BufferedWriter.h ProtoUtils.h BitIterator.h DESTINATION "include/velox/utils")
+diff --git a/velox/dwio/dwrf/writer/CMakeLists.txt b/velox/dwio/dwrf/writer/CMakeLists.txt
+index 5fe63f82..9feb384f 100644
+--- a/velox/dwio/dwrf/writer/CMakeLists.txt
++++ b/velox/dwio/dwrf/writer/CMakeLists.txt
+@@ -38,3 +38,7 @@ target_link_libraries(
+   ${LZO}
+   ${ZSTD}
+   ${ZLIB_LIBRARIES})
++
++install(TARGETS velox_dwio_dwrf_writer)
++
++install(FILES StatisticsBuilder.h RatioTracker.h WriterBase.h StringDictionaryEncoder.h WriterSink.h DictionaryEncodingUtils.h IndexBuilder.h ColumnWriter.h Writer.h EntropyEncodingSelector.h StatisticsBuilderUtils.h WriterShared.h WriterContext.h LayoutPlanner.h FlatMapColumnWriter.h IntegerDictionaryEncoder.h FlushPolicy.h DESTINATION "include/velox/writer")
+diff --git a/velox/dwio/parquet/CMakeLists.txt b/velox/dwio/parquet/CMakeLists.txt
+index 9b570580..760004e6 100644
+--- a/velox/dwio/parquet/CMakeLists.txt
++++ b/velox/dwio/parquet/CMakeLists.txt
+@@ -21,3 +21,7 @@ endif()
+ add_library(velox_dwio_parquet_reader RegisterParquetReader.cpp)
+ target_link_libraries(velox_dwio_parquet_reader
+                       velox_dwio_duckdb_parquet_reader gtest xsimd)
++
++install(TARGETS velox_dwio_parquet_reader)
++
++install(FILES RegisterParquetReader.h DESTINATION "include/velox/parquet")
+diff --git a/velox/dwio/parquet/duckdb_reader/CMakeLists.txt b/velox/dwio/parquet/duckdb_reader/CMakeLists.txt
+index c87e54e6..d9ff715f 100644
+--- a/velox/dwio/parquet/duckdb_reader/CMakeLists.txt
++++ b/velox/dwio/parquet/duckdb_reader/CMakeLists.txt
+@@ -19,3 +19,7 @@ add_library(velox_dwio_duckdb_parquet_reader ParquetReader.cpp)
+ target_link_libraries(
+   velox_dwio_duckdb_parquet_reader velox_dwio_duckdb_parquet_reader_duckdb
+   velox_dwio_common velox_duckdb_conversion duckdb ${FMT})
++
++install(TARGETS velox_dwio_duckdb_parquet_reader)
++
++install(FILES Statistics.h ParquetReader.h DESTINATION "include/velox/duckdb_reader")
+diff --git a/velox/dwio/parquet/duckdb_reader/duckdb/CMakeLists.txt b/velox/dwio/parquet/duckdb_reader/duckdb/CMakeLists.txt
+index b37d3fe6..dda5ab7f 100644
+--- a/velox/dwio/parquet/duckdb_reader/duckdb/CMakeLists.txt
++++ b/velox/dwio/parquet/duckdb_reader/duckdb/CMakeLists.txt
+@@ -16,3 +16,7 @@ add_library(velox_dwio_duckdb_parquet_reader_duckdb Allocator.cpp)
+ 
+ target_link_libraries(velox_dwio_duckdb_parquet_reader_duckdb velox_dwio_common
+                       duckdb ${FMT})
++
++install(TARGETS velox_dwio_duckdb_parquet_reader_duckdb)
++
++install(FILES Allocator.h InputStreamFileSystem.h InputStreamFileHandle.h DESTINATION "include/velox/duckdb")
+diff --git a/velox/dwio/type/CMakeLists.txt b/velox/dwio/type/CMakeLists.txt
+index 6c1c649e..37008a76 100644
+--- a/velox/dwio/type/CMakeLists.txt
++++ b/velox/dwio/type/CMakeLists.txt
+@@ -16,3 +16,7 @@ add_library(velox_dwio_type_fbhive fbhive/HiveTypeParser.cpp
+                                    fbhive/HiveTypeSerializer.cpp)
+ 
+ target_link_libraries(velox_dwio_type_fbhive velox_dwio_common)
++
++install(TARGETS velox_dwio_type_fbhive)
++
++install(FILES TypeParser.h DESTINATION "include/velox/type")
+diff --git a/velox/exec/CMakeLists.txt b/velox/exec/CMakeLists.txt
+index 9e2ac1bd..7cfbf7c1 100644
+--- a/velox/exec/CMakeLists.txt
++++ b/velox/exec/CMakeLists.txt
+@@ -73,3 +73,7 @@ if(${VELOX_BUILD_TESTING})
+ elseif(${VELOX_BUILD_TEST_UTILS})
+   add_subdirectory(tests/utils)
+ endif()
++
++install(TARGETS velox_exec)
++
++install(FILES PartitionedOutputBufferManager.h Split.h HashProbe.h RowContainer.h CrossJoinBuild.h CallbackSink.h RoundRobinPartitionFunction.h LocalPartition.h AggregationHook.h TaskStats.h Aggregate.h AggregateFunctionRegistry.h Spill.h Unnest.h OrderBy.h TreeOfLosers.h EnforceSingleRow.h Task.h TableScan.h HashPartitionFunction.h Spiller.h FilterProject.h OperatorUtils.h GroupingSet.h TaskStructs.h MergeSource.h LocalPlanner.h Merge.h StreamingAggregation.h AggregationMasks.h Values.h ContainerRowSerde.h HashBuild.h GroupId.h Exchange.h PartitionedOutput.h PlanNodeStats.h Operator.h VectorHasher-inl.h Driver.h TopN.h JoinBridge.h VectorHasher.h HashTable.h CrossJoinProbe.h MergeJoin.h HashAggregation.h AssignUniqueId.h TableWriter.h Limit.h DESTINATION "include/velox/exec")
+diff --git a/velox/exec/tests/utils/CMakeLists.txt b/velox/exec/tests/utils/CMakeLists.txt
+index 064c39e9..84bbe488 100644
+--- a/velox/exec/tests/utils/CMakeLists.txt
++++ b/velox/exec/tests/utils/CMakeLists.txt
+@@ -44,3 +44,5 @@ target_link_libraries(
+   velox_tpch_connector
+   velox_presto_serializer
+   velox_functions_prestosql)
++
++install(TARGETS velox_temp_path velox_exec_test_util)
+diff --git a/velox/experimental/codegen/CMakeLists.txt b/velox/experimental/codegen/CMakeLists.txt
+index 0a88b8ec..1d5c4c44 100644
+--- a/velox/experimental/codegen/CMakeLists.txt
++++ b/velox/experimental/codegen/CMakeLists.txt
+@@ -51,3 +51,7 @@ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(benchmark)
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_experimental_codegen)
++
++install(FILES CodegenLogger.h Codegen.h CodegenASTAnalysis.h CodegenExceptions.h CodegenCompiledExpressionTransform.h CompiledExpressionAnalysis.h CodegenIncludes.h DESTINATION "include/velox/codegen")
+diff --git a/velox/experimental/codegen/ast/CMakeLists.txt b/velox/experimental/codegen/ast/CMakeLists.txt
+index fa26e35e..b5e0c52a 100644
+--- a/velox/experimental/codegen/ast/CMakeLists.txt
++++ b/velox/experimental/codegen/ast/CMakeLists.txt
+@@ -17,3 +17,7 @@ add_library(
+                     AST.h ConstantExpression.cpp ASTAnalysis.cpp)
+ 
+ target_link_libraries(velox_codegen_ast velox_type ${FMT})
++
++install(TARGETS velox_codegen_ast)
++
++install(FILES CodegenUtils.h UnaryExpressions.h AST.h ASTNode.h ASTAnalysis.h BinaryExpressions.h ConstantExpressions.h CodegenCtx.h DESTINATION "include/velox/ast")
+diff --git a/velox/experimental/codegen/code_generator/CMakeLists.txt b/velox/experimental/codegen/code_generator/CMakeLists.txt
+index 050610f0..0c336daa 100644
+--- a/velox/experimental/codegen/code_generator/CMakeLists.txt
++++ b/velox/experimental/codegen/code_generator/CMakeLists.txt
+@@ -36,3 +36,7 @@ add_library(velox_codegen_code_generator ExprCodeGenerator.cpp)
+ target_link_libraries(velox_codegen_code_generator velox_core velox_codegen_ast
+                       velox_codegen_udf_manager velox_memory)
+ target_link_libraries(velox_codegen_code_generator velox_codegen_proto)
++
++install(TARGETS velox_all_link velox_codegen_code_generator)
++
++install(FILES ExprCodeGenerator.h DESTINATION "include/velox/code_generator")
+diff --git a/velox/experimental/codegen/compiler_utils/CMakeLists.txt b/velox/experimental/codegen/compiler_utils/CMakeLists.txt
+index 3f9c14f3..9591cf9d 100644
+--- a/velox/experimental/codegen/compiler_utils/CMakeLists.txt
++++ b/velox/experimental/codegen/compiler_utils/CMakeLists.txt
+@@ -18,3 +18,7 @@ add_dependencies(velox_codegen_compiler_utils velox_codegen_external_process
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_codegen_compiler_utils)
++
++install(FILES UnresolvedLibrary.h Compiler.h CompilerOptions.h ICompiledCall.h LibraryDescriptor.h CodeManager.h DESTINATION "include/velox/compiler_utils")
+diff --git a/velox/experimental/codegen/external_process/CMakeLists.txt b/velox/experimental/codegen/external_process/CMakeLists.txt
+index deb7821b..94cfb6bb 100644
+--- a/velox/experimental/codegen/external_process/CMakeLists.txt
++++ b/velox/experimental/codegen/external_process/CMakeLists.txt
+@@ -16,3 +16,7 @@ add_library(velox_codegen_external_process INTERFACE)
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_codegen_external_process)
++
++install(FILES ExternalProcessException.h subprocess.h Command.h Filesystem.h DESTINATION "include/velox/external_process")
+diff --git a/velox/experimental/codegen/functions/CMakeLists.txt b/velox/experimental/codegen/functions/CMakeLists.txt
+index 0df04890..ff2b29b1 100644
+--- a/velox/experimental/codegen/functions/CMakeLists.txt
++++ b/velox/experimental/codegen/functions/CMakeLists.txt
+@@ -14,3 +14,7 @@
+ 
+ add_library(velox_codegen_functions INTERFACE)
+ target_link_libraries(velox_codegen_functions INTERFACE ${FMT})
++
++install(TARGETS velox_codegen_functions)
++
++install(FILES HashFunctionStub.h CastFunctionStub.h DESTINATION "include/velox/functions")
+diff --git a/velox/experimental/codegen/library_loader/CMakeLists.txt b/velox/experimental/codegen/library_loader/CMakeLists.txt
+index d52de2d5..24d03de1 100644
+--- a/velox/experimental/codegen/library_loader/CMakeLists.txt
++++ b/velox/experimental/codegen/library_loader/CMakeLists.txt
+@@ -16,3 +16,7 @@ add_library(velox_codegen_library_loader INTERFACE)
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_codegen_library_loader)
++
++install(FILES NativeLibraryLoader.h NativeLibraryLoaderException.h FunctionTable.h DESTINATION "include/velox/library_loader")
+diff --git a/velox/experimental/codegen/library_loader/tests/resources/CMakeLists.txt b/velox/experimental/codegen/library_loader/tests/resources/CMakeLists.txt
+index 15fef116..40e9aee0 100644
+--- a/velox/experimental/codegen/library_loader/tests/resources/CMakeLists.txt
++++ b/velox/experimental/codegen/library_loader/tests/resources/CMakeLists.txt
+@@ -18,3 +18,5 @@ add_library(velox_codegen_native_loader_resources_bad_library SHARED
+             SampleTestBadLibrary.cpp)
+ add_library(velox_codegen_native_loader_resources_typeinfo_library SHARED
+             DynamicTestLibrary.cpp)
++
++install(TARGETS velox_codegen_native_loader_resources_good_library velox_codegen_native_loader_resources_bad_library velox_codegen_native_loader_resources_typeinfo_library)
+diff --git a/velox/experimental/codegen/proto/CMakeLists.txt b/velox/experimental/codegen/proto/CMakeLists.txt
+index a5dbc59b..9d440fe8 100644
+--- a/velox/experimental/codegen/proto/CMakeLists.txt
++++ b/velox/experimental/codegen/proto/CMakeLists.txt
+@@ -19,3 +19,7 @@ add_custom_command(
+ 
+ add_library(velox_codegen_proto codegen_proto.pb.cc)
+ target_link_libraries(velox_codegen_proto ${Protobuf_LIBRARIES})
++
++install(TARGETS velox_codegen_proto)
++
++install(FILES ProtoUtils.h DESTINATION "include/velox/proto")
+diff --git a/velox/experimental/codegen/transform/CMakeLists.txt b/velox/experimental/codegen/transform/CMakeLists.txt
+index 91d4c9ad..8f5bc7f5 100644
+--- a/velox/experimental/codegen/transform/CMakeLists.txt
++++ b/velox/experimental/codegen/transform/CMakeLists.txt
+@@ -13,3 +13,7 @@
+ # limitations under the License.
+ add_library(velox_codegen_transform INTERFACE)
+ add_subdirectory(utils)
++
++install(TARGETS velox_codegen_transform)
++
++install(FILES PlanNodeTransform.h DESTINATION "include/velox/transform")
+diff --git a/velox/experimental/codegen/transform/utils/CMakeLists.txt b/velox/experimental/codegen/transform/utils/CMakeLists.txt
+index c0efdea1..b87ebae8 100644
+--- a/velox/experimental/codegen/transform/utils/CMakeLists.txt
++++ b/velox/experimental/codegen/transform/utils/CMakeLists.txt
+@@ -19,3 +19,7 @@ if(${VELOX_BUILD_TESTING})
+ endif()
+ target_compile_definitions(velox_transform_utils INTERFACE ENABLE_CONCEPTS=0
+                                                            USE_STD_RANGE=0)
++
++install(TARGETS velox_transform_utils)
++
++install(FILES utils.h ranges_utils.h adapters.h DESTINATION "include/velox/utils")
+diff --git a/velox/experimental/codegen/udf_manager/CMakeLists.txt b/velox/experimental/codegen/udf_manager/CMakeLists.txt
+index 288964b4..328bfd8d 100644
+--- a/velox/experimental/codegen/udf_manager/CMakeLists.txt
++++ b/velox/experimental/codegen/udf_manager/CMakeLists.txt
+@@ -18,3 +18,7 @@ add_library(velox_codegen_udf_manager UDFManager.cpp)
+ # add velox_exception as a dependency to make fmt visible in this compilation
+ # unit.
+ target_link_libraries(velox_codegen_udf_manager velox_exception)
++
++install(TARGETS velox_codegen_udf_manager)
++
++install(FILES UDFManager.h ExpressionNullMode.h DESTINATION "include/velox/udf_manager")
+diff --git a/velox/experimental/codegen/utils/resources/CMakeLists.txt b/velox/experimental/codegen/utils/resources/CMakeLists.txt
+index 0353eb87..e51c3b38 100644
+--- a/velox/experimental/codegen/utils/resources/CMakeLists.txt
++++ b/velox/experimental/codegen/utils/resources/CMakeLists.txt
+@@ -40,3 +40,7 @@ add_compile_definitions(PACKAGE_JSON="${PACKAGE_JSON}")
+ add_compile_definitions(BASE_FOLDER="${BASE_FOLDER}")
+ 
+ add_library(velox_codegen_utils_resource_path package.json ResourcePath.cpp)
++
++install(TARGETS velox_codegen_utils_resource_path)
++
++install(FILES ResourcePath.h DESTINATION "include/velox/resources")
+diff --git a/velox/experimental/codegen/utils/timer/CMakeLists.txt b/velox/experimental/codegen/utils/timer/CMakeLists.txt
+index 420efcca..2141153e 100644
+--- a/velox/experimental/codegen/utils/timer/CMakeLists.txt
++++ b/velox/experimental/codegen/utils/timer/CMakeLists.txt
+@@ -17,3 +17,7 @@ target_link_libraries(velox_codegen_utils_timer INTERFACE ${FMT})
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_codegen_utils_timer)
++
++install(FILES NestedScopedTimer.h DESTINATION "include/velox/timer")
+diff --git a/velox/experimental/codegen/vector_function/CMakeLists.txt b/velox/experimental/codegen/vector_function/CMakeLists.txt
+index ca96b6d0..82b83686 100644
+--- a/velox/experimental/codegen/vector_function/CMakeLists.txt
++++ b/velox/experimental/codegen/vector_function/CMakeLists.txt
+@@ -16,3 +16,7 @@ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
+ add_library(velox_codegen_vector_function INTERFACE)
++
++install(TARGETS velox_codegen_vector_function)
++
++install(FILES StringTypes.h VectorFunctionLoadUtils.h ConcatExpression-inl.h GeneratedVectorFunction-inl.h Perf.h VectorReader-inl.h DESTINATION "include/velox/vector_function")
+diff --git a/velox/expression/CMakeLists.txt b/velox/expression/CMakeLists.txt
+index 2b871146..f3f08eea 100644
+--- a/velox/expression/CMakeLists.txt
++++ b/velox/expression/CMakeLists.txt
+@@ -38,3 +38,7 @@ add_subdirectory(type_calculation)
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_expression_functions velox_expression)
++
++install(FILES StringWriter.h EvalCtx.h CoalesceExpr.h SimpleFunctionRegistry.h ComplexViewTypes.h SignatureBinder.h ExprCompiler.h VectorFunction.h UdfTypeResolver.h FunctionRegistry.h FunctionSignature.h CastExpr.h DecodedArgs.h ComplexWriterTypes.h ExprToSubfieldFilter.h Expr.h ControlExpr.h VariadicView.h SimpleFunctionAdapter.h VectorReaders.h VectorWriters.h VarSetter.h DESTINATION "include/velox/expression")
+diff --git a/velox/expression/tests/CMakeLists.txt b/velox/expression/tests/CMakeLists.txt
+index 41bfc49b..f6d2eb3a 100644
+--- a/velox/expression/tests/CMakeLists.txt
++++ b/velox/expression/tests/CMakeLists.txt
+@@ -84,3 +84,5 @@ add_executable(spark_expression_fuzzer_test SparkExpressionFuzzerTest.cpp)
+ 
+ target_link_libraries(spark_expression_fuzzer_test velox_expression_fuzzer
+                       velox_functions_spark gtest gtest_main)
++
++install(TARGETS velox_expression_fuzzer)
+diff --git a/velox/expression/type_calculation/CMakeLists.txt b/velox/expression/type_calculation/CMakeLists.txt
+index f443994e..5684f2b9 100644
+--- a/velox/expression/type_calculation/CMakeLists.txt
++++ b/velox/expression/type_calculation/CMakeLists.txt
+@@ -28,3 +28,7 @@ include_directories(${FLEX_INCLUDE_DIRS})
+ add_library(velox_type_calculation ${BISON_TypeCalculationParser_OUTPUTS}
+                                    ${FLEX_TypeCalculationScanner_OUTPUTS})
+ target_link_libraries(velox_type_calculation velox_common_base)
++
++install(TARGETS velox_type_calculation)
++
++install(FILES Scanner.h TypeCalculation.h DESTINATION "include/velox/type_calculation")
+diff --git a/velox/external/date/CMakeLists.txt b/velox/external/date/CMakeLists.txt
+index 3cde881b..26a930a0 100644
+Binary files a/velox/external/date/CMakeLists.txt and b/velox/external/date/CMakeLists.txt differ
+diff --git a/velox/external/md5/CMakeLists.txt b/velox/external/md5/CMakeLists.txt
+index 5158001d..c1d887d8 100644
+Binary files a/velox/external/md5/CMakeLists.txt and b/velox/external/md5/CMakeLists.txt differ
+diff --git a/velox/flag_definitions/CMakeLists.txt b/velox/flag_definitions/CMakeLists.txt
+index e59252df..53e25032 100644
+--- a/velox/flag_definitions/CMakeLists.txt
++++ b/velox/flag_definitions/CMakeLists.txt
+@@ -13,3 +13,5 @@
+ # limitations under the License.
+ add_library(velox_flag_definitions OBJECT flags.cpp)
+ target_link_libraries(velox_flag_definitions gflags)
++
++install(TARGETS velox_flag_definitions)
+diff --git a/velox/functions/CMakeLists.txt b/velox/functions/CMakeLists.txt
+index 50ce7f1a..fa0cffde 100644
+--- a/velox/functions/CMakeLists.txt
++++ b/velox/functions/CMakeLists.txt
+@@ -28,3 +28,7 @@ endif()
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_function_registry)
++
++install(FILES Registerer.h Macros.h UDFOutputString.h FunctionRegistry.h Udf.h DESTINATION "include/velox/functions")
+diff --git a/velox/functions/lib/CMakeLists.txt b/velox/functions/lib/CMakeLists.txt
+index 72537e39..3784f854 100644
+--- a/velox/functions/lib/CMakeLists.txt
++++ b/velox/functions/lib/CMakeLists.txt
+@@ -34,3 +34,7 @@ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(benchmarks)
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_functions_lib)
++
++install(FILES DateTimeFormatterBuilder.h JodaDateTime.h ArrayBuilder.h Re2Functions.h SubscriptUtil.h LambdaFunctionUtil.h StringEncodingUtils.h DateTimeFormatter.h KllSketch.h ComparatorUtil.h DynamicFlatVector.h KllSketch-inl.h RegistrationHelpers.h DESTINATION "include/velox/lib")
+diff --git a/velox/functions/lib/string/CMakeLists.txt b/velox/functions/lib/string/CMakeLists.txt
+index 4c2fdeef..1374be36 100644
+--- a/velox/functions/lib/string/CMakeLists.txt
++++ b/velox/functions/lib/string/CMakeLists.txt
+@@ -18,3 +18,7 @@ target_link_libraries(velox_functions_string INTERFACE velox_exception)
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_functions_string)
++
++install(FILES StringCore.h StringImpl.h DESTINATION "include/velox/string")
+diff --git a/velox/functions/prestosql/CMakeLists.txt b/velox/functions/prestosql/CMakeLists.txt
+index 9ec732f5..c80ab4f0 100644
+--- a/velox/functions/prestosql/CMakeLists.txt
++++ b/velox/functions/prestosql/CMakeLists.txt
+@@ -72,3 +72,7 @@ if(${VELOX_BUILD_TESTING})
+ endif()
+ 
+ add_subdirectory(registration)
++
++install(TARGETS velox_functions_prestosql_impl)
++
++install(FILES Cardinality.h Rand.h Bitwise.h URLFunctions.h HyperLogLogFunctions.h Arithmetic.h DateTimeImpl.h DateTimeFunctions.h RegexpReplace.h SplitPart.h CheckedArithmetic.h CheckedArithmeticImpl.h StringFunctions.h WidthBucketArray.h Comparisons.h JsonExtractScalar.h ArrayFunctions.h ArithmeticImpl.h DESTINATION "include/velox/prestosql")
+diff --git a/velox/functions/prestosql/aggregates/CMakeLists.txt b/velox/functions/prestosql/aggregates/CMakeLists.txt
+index 6cffd933..b2b47fe6 100644
+--- a/velox/functions/prestosql/aggregates/CMakeLists.txt
++++ b/velox/functions/prestosql/aggregates/CMakeLists.txt
+@@ -46,3 +46,7 @@ add_library(
+ 
+ target_link_libraries(velox_aggregates velox_functions_hyperloglog velox_exec
+                       ${FOLLY_WITH_DEPENDENCIES})
++
++install(TARGETS velox_aggregates)
++
++install(FILES AggregateNames.h PrestoHasher.h MapAggregateBase.h SingleValueAccumulator.h ValueList.h SimpleNumericAggregate.h SumAggregate.h IOUtils.h DESTINATION "include/velox/aggregates")
+diff --git a/velox/functions/prestosql/aggregates/tests/CMakeLists.txt b/velox/functions/prestosql/aggregates/tests/CMakeLists.txt
+index 83ed096f..f21c19ff 100644
+--- a/velox/functions/prestosql/aggregates/tests/CMakeLists.txt
++++ b/velox/functions/prestosql/aggregates/tests/CMakeLists.txt
+@@ -61,3 +61,5 @@ target_link_libraries(
+   ${gflags_LIBRARIES}
+   gtest
+   gtest_main)
++
++install(TARGETS velox_aggregates_test_lib)
+diff --git a/velox/functions/prestosql/hyperloglog/CMakeLists.txt b/velox/functions/prestosql/hyperloglog/CMakeLists.txt
+index b5b62b6d..2565ecaf 100644
+--- a/velox/functions/prestosql/hyperloglog/CMakeLists.txt
++++ b/velox/functions/prestosql/hyperloglog/CMakeLists.txt
+@@ -19,3 +19,7 @@ add_library(velox_functions_hyperloglog BiasCorrection.cpp DenseHll.cpp
+                                         SparseHll.cpp)
+ 
+ target_link_libraries(velox_functions_hyperloglog velox_memory)
++
++install(TARGETS velox_functions_hyperloglog)
++
++install(FILES HllUtils.h BiasCorrection.h DenseHll.h SparseHll.h DESTINATION "include/velox/hyperloglog")
+diff --git a/velox/functions/prestosql/json/CMakeLists.txt b/velox/functions/prestosql/json/CMakeLists.txt
+index 61f7849c..b86ffd39 100644
+--- a/velox/functions/prestosql/json/CMakeLists.txt
++++ b/velox/functions/prestosql/json/CMakeLists.txt
+@@ -19,3 +19,7 @@ target_link_libraries(velox_functions_json velox_exception
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_functions_json)
++
++install(FILES JsonPathTokenizer.h JsonExtractor.h DESTINATION "include/velox/json")
+diff --git a/velox/functions/prestosql/registration/CMakeLists.txt b/velox/functions/prestosql/registration/CMakeLists.txt
+index 957606b8..a9d031fe 100644
+--- a/velox/functions/prestosql/registration/CMakeLists.txt
++++ b/velox/functions/prestosql/registration/CMakeLists.txt
+@@ -32,3 +32,7 @@ target_link_libraries(velox_functions_prestosql velox_functions_prestosql_impl)
+ 
+ set_property(TARGET velox_functions_prestosql PROPERTY JOB_POOL_COMPILE
+                                                        high_memory_pool)
++
++install(TARGETS velox_functions_prestosql)
++
++install(FILES RegistrationFunctions.h DESTINATION "include/velox/registration")
+diff --git a/velox/functions/prestosql/tests/CMakeLists.txt b/velox/functions/prestosql/tests/CMakeLists.txt
+index 7524b71a..72f40ee7 100644
+--- a/velox/functions/prestosql/tests/CMakeLists.txt
++++ b/velox/functions/prestosql/tests/CMakeLists.txt
+@@ -77,3 +77,5 @@ target_link_libraries(
+   ${gflags_LIBRARIES}
+   gmock
+   gmock_main)
++
++install(TARGETS velox_functions_test_lib)
+diff --git a/velox/functions/prestosql/types/CMakeLists.txt b/velox/functions/prestosql/types/CMakeLists.txt
+index 8f7e3135..99596ba0 100644
+--- a/velox/functions/prestosql/types/CMakeLists.txt
++++ b/velox/functions/prestosql/types/CMakeLists.txt
+@@ -14,3 +14,7 @@
+ add_library(velox_presto_types JsonType.cpp)
+ 
+ target_link_libraries(velox_presto_types velox_memory velox_expression)
++
++install(TARGETS velox_presto_types)
++
++install(FILES JsonType.h HyperLogLogType.h TimestampWithTimeZoneType.h DESTINATION "include/velox/types")
+diff --git a/velox/functions/sparksql/CMakeLists.txt b/velox/functions/sparksql/CMakeLists.txt
+index 8b8fe0c2..e11e4d4c 100644
+--- a/velox/functions/sparksql/CMakeLists.txt
++++ b/velox/functions/sparksql/CMakeLists.txt
+@@ -38,3 +38,7 @@ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+   add_subdirectory(benchmarks)
+ endif()
++
++install(TARGETS velox_functions_spark)
++
++install(FILES RegisterCompare.h ArraySort.h String.h Register.h RegexFunctions.h In.h Arithmetic.h CompareFunctionsNullSafe.h RegisterArithmetic.h LeastGreatest.h Comparisons.h Size.h Hash.h Arena.h DESTINATION "include/velox/sparksql")
+diff --git a/velox/parse/CMakeLists.txt b/velox/parse/CMakeLists.txt
+index 6cbacb72..146730dc 100644
+--- a/velox/parse/CMakeLists.txt
++++ b/velox/parse/CMakeLists.txt
+@@ -26,3 +26,7 @@ target_link_libraries(velox_parse_utils velox_buffer velox_type velox_vector
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_parse_expression velox_parse_parser velox_parse_utils)
++
++install(FILES TypeResolver.h ExpressionsParser.h VariantToVector.h IExpr.h Expressions.h DESTINATION "include/velox/parse")
+diff --git a/velox/row/CMakeLists.txt b/velox/row/CMakeLists.txt
+index b91f0771..1a04a7b5 100644
+--- a/velox/row/CMakeLists.txt
++++ b/velox/row/CMakeLists.txt
+@@ -19,3 +19,7 @@ endif()
+ add_library(velox_row UnsafeRow24Deserializer.cpp)
+ 
+ target_link_libraries(velox_row velox_memory velox_type velox_vector)
++
++install(TARGETS velox_row)
++
++install(FILES UnsafeRow.h UnsafeRowSerializer.h UnsafeRowParser.h UnsafeRow24Deserializer.h UnsafeRowDynamicSerializer.h UnsafeRowDeserializer.h UnsafeRowBatchDeserializer.h DESTINATION "include/velox/row")
+diff --git a/velox/serializers/CMakeLists.txt b/velox/serializers/CMakeLists.txt
+index 7f6a1589..13fa6708 100644
+--- a/velox/serializers/CMakeLists.txt
++++ b/velox/serializers/CMakeLists.txt
+@@ -18,3 +18,7 @@ target_link_libraries(velox_presto_serializer velox_vector)
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_presto_serializer)
++
++install(FILES PrestoSerializer.h DESTINATION "include/velox/serializers")
+diff --git a/velox/substrait/CMakeLists.txt b/velox/substrait/CMakeLists.txt
+index 018973e7..b79fb2a8 100644
+--- a/velox/substrait/CMakeLists.txt
++++ b/velox/substrait/CMakeLists.txt
+@@ -60,3 +60,7 @@ target_link_libraries(velox_substrait_plan_converter velox_connector
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_substrait_plan_converter)
++
++install(FILES SubstraitToVeloxExpr.h VeloxToSubstraitExpr.h VeloxToSubstraitPlan.h SubstraitParser.h SubstraitToVeloxPlan.h VeloxToSubstraitType.h TypeUtils.h DESTINATION "include/velox/substrait")
+diff --git a/velox/tpch/gen/CMakeLists.txt b/velox/tpch/gen/CMakeLists.txt
+index 0ea05a1f..7525279e 100644
+--- a/velox/tpch/gen/CMakeLists.txt
++++ b/velox/tpch/gen/CMakeLists.txt
+@@ -18,3 +18,7 @@ target_link_libraries(velox_tpch_gen velox_memory velox_vector dbgen duckdb)
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_tpch_gen)
++
++install(FILES DBGenIterator.h TpchGen.h DESTINATION "include/velox/gen")
+diff --git a/velox/type/CMakeLists.txt b/velox/type/CMakeLists.txt
+index 96a116ea..34c91d6a 100644
+--- a/velox/type/CMakeLists.txt
++++ b/velox/type/CMakeLists.txt
+@@ -40,3 +40,7 @@ target_link_libraries(
+   velox_external_date
+   ${Boost_REGEX_LIBRARIES}
+   ${FOLLY_WITH_DEPENDENCIES})
++
++install(TARGETS velox_type)
++
++install(FILES TimestampConversion.h Date.h Timestamp.h ShortDecimal.h Conversions.h Tree.h LongDecimal.h Subfield.h IntervalDayTime.h StringView.h Type.h Filter.h Variant.h Tokenizer.h DESTINATION "include/velox/type")
+diff --git a/velox/type/tz/CMakeLists.txt b/velox/type/tz/CMakeLists.txt
+index ed554188..547ba1b7 100644
+--- a/velox/type/tz/CMakeLists.txt
++++ b/velox/type/tz/CMakeLists.txt
+@@ -18,3 +18,7 @@ add_library(velox_type_tz TimeZoneMap.h TimeZoneDatabase.cpp TimeZoneMap.cpp)
+ 
+ target_link_libraries(velox_type_tz ${Boost_REGEX_LIBRARIES} ${FMT}
+                       ${FOLLY_WITH_DEPENDENCIES})
++
++install(TARGETS velox_type_tz)
++
++install(FILES TimeZoneMap.h DESTINATION "include/velox/tz")
+diff --git a/velox/vector/CMakeLists.txt b/velox/vector/CMakeLists.txt
+index 7b2f9d4a..24aa2608 100644
+--- a/velox/vector/CMakeLists.txt
++++ b/velox/vector/CMakeLists.txt
+@@ -34,3 +34,7 @@ if(${VELOX_BUILD_TESTING} OR ${VELOX_ENABLE_BENCHMARKS_BASIC})
+   add_subdirectory(tests)
+   add_subdirectory(benchmarks)
+ endif()
++
++install(TARGETS velox_vector)
++
++install(FILES BiasVector-inl.h VectorEncoding.h FlatVector.h ConstantVector-inl.h FlatVector-inl.h ConstantVector.h ComplexVector.h TypeAliases.h NullsBuilder.h SequenceVector.h BiasVector.h SequenceVector-inl.h VectorTypeUtils.h DictionaryVector.h RowSerde.h SimpleVector.h FunctionVector.h VectorStream.h SelectivityVector.h BaseVector.h LazyVector.h DecodedVector.h BuilderTypeUtils.h DictionaryVector-inl.h VectorUtil.h DESTINATION "include/velox/vector")
+diff --git a/velox/vector/arrow/CMakeLists.txt b/velox/vector/arrow/CMakeLists.txt
+index a4975d6f..68798fb0 100644
+--- a/velox/vector/arrow/CMakeLists.txt
++++ b/velox/vector/arrow/CMakeLists.txt
+@@ -19,3 +19,7 @@ target_link_libraries(velox_arrow_bridge velox_memory velox_type velox_buffer
+ if(${VELOX_BUILD_TESTING})
+   add_subdirectory(tests)
+ endif()
++
++install(TARGETS velox_arrow_bridge)
++
++install(FILES Bridge.h Abi.h DESTINATION "include/velox/arrow")
+diff --git a/velox/vector/fuzzer/CMakeLists.txt b/velox/vector/fuzzer/CMakeLists.txt
+index 12513625..12695b1a 100644
+--- a/velox/vector/fuzzer/CMakeLists.txt
++++ b/velox/vector/fuzzer/CMakeLists.txt
+@@ -15,3 +15,7 @@
+ add_library(velox_vector_fuzzer VectorFuzzer.cpp)
+ 
+ target_link_libraries(velox_vector_fuzzer velox_type velox_vector)
++
++install(TARGETS velox_vector_fuzzer)
++
++install(FILES VectorFuzzer.h DESTINATION "include/velox/fuzzer")
+diff --git a/velox/vector/tests/CMakeLists.txt b/velox/vector/tests/CMakeLists.txt
+index 5c11609b..d3e490db 100644
+--- a/velox/vector/tests/CMakeLists.txt
++++ b/velox/vector/tests/CMakeLists.txt
+@@ -87,3 +87,5 @@ target_link_libraries(
+   ${gflags_LIBRARIES}
+   glog::glog
+   ${FMT})
++
++install(TARGETS velox_vector_test_lib)
