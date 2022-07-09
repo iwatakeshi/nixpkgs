@@ -1153,9 +1153,9 @@ lib.composeManyExtensions [
             name = "site.cfg";
             text = (
               lib.generators.toINI { } {
-                ${blas.implementation} = {
-                  include_dirs = "${blas}/include:${lapack}/include";
-                  library_dirs = "${blas}/lib:${lapack}/lib";
+                ${pkgs.blas.implementation} = {
+                  include_dirs = "${pkgs.blas}/include:${pkgs.lapack}/include";
+                  library_dirs = "${pkgs.blas}/lib:${pkgs.lapack}/lib";
                 };
               }
             );
@@ -1163,14 +1163,15 @@ lib.composeManyExtensions [
         in
         {
           nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.gfortran ];
-          buildInputs = (old.buildInputs or [ ]) ++ [ blas lapack ];
+          buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.blas pkgs.lapack ];
           enableParallelBuilding = true;
           preBuild = ''
             ln -s ${cfg} site.cfg
           '';
           passthru = old.passthru // {
-            inherit blas cfg;
-            blasImplementation = blas.implementation;
+            inherit cfg;
+            inherit (pkgs) blas;
+            blasImplementation = pkgs.blas.implementation;
           };
         }
       );
