@@ -1153,7 +1153,7 @@ lib.composeManyExtensions [
             name = "site.cfg";
             text = (
               lib.generators.toINI { } {
-                ${blasImplementation} = {
+                ${blas.implementation} = {
                   include_dirs = "${blas}/include:${lapack}/include";
                   library_dirs = "${blas}/lib:${lapack}/lib";
                 };
