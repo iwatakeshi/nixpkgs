@@ -1148,35 +1148,29 @@ lib.composeManyExtensions [
       numpy = super.numpy.overridePythonAttrs (
         old:
         let
-          blas = old.passthru.args.blas or pkgs.openblasCompat;
-          blasImplementation = lib.nameFromURL blas.name "-";
+          lapack = old.passthru.args.lapack or pkgs.openblasCompat;
           cfg = pkgs.writeTextFile {
             name = "site.cfg";
             text = (
-              lib.generators.toINI
-                { }
-                {
-                  ${blasImplementation} = {
-                    include_dirs = "${blas}/include";
-                    library_dirs = "${blas}/lib";
-                  } // lib.optionalAttrs (blasImplementation == "mkl") {
-                    mkl_libs = "mkl_rt";
-                    lapack_libs = "";
-                  };
-                }
+              lib.generators.toINI { } {
+                ${blasImplementation} = {
+                  include_dirs = "${blas}/include:${lapack}/include";
+                  library_dirs = "${blas}/lib:${lapack}/lib";
+                };
+              }
             );
           };
         in
         {
           nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.gfortran ];
-          buildInputs = (old.buildInputs or [ ]) ++ [ blas ];
+          buildInputs = (old.buildInputs or [ ]) ++ [ blas lapack ];
           enableParallelBuilding = true;
           preBuild = ''
             ln -s ${cfg} site.cfg
           '';
           passthru = old.passthru // {
-            blas = blas;
-            inherit blasImplementation cfg;
+            inherit blas cfg;
+            blasImplementation = blas.implementation;
           };
         }
       );
