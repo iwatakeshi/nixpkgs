@@ -1154,8 +1154,8 @@ lib.composeManyExtensions [
             text = (
               lib.generators.toINI { } {
                 ${pkgs.blas.implementation} = {
-                  include_dirs = "${pkgs.blas}/include:${pkgs.lapack}/include";
-                  library_dirs = "${pkgs.blas}/lib:${pkgs.lapack}/lib";
+                  include_dirs = "${pkgs.blas.provider}/include:${pkgs.lapack.provider}/include";
+                  library_dirs = "${pkgs.blas.provider}/lib:${pkgs.lapack.provider}/lib";
                 };
               }
             );
