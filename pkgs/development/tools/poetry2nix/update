@@ -11,8 +11,10 @@ trap cleanup EXIT
 
 cd "$workdir"
 
-curl -L -s https://github.com/nix-community/poetry2nix/archive/master.tar.gz | tar -xz
-mv poetry2nix-master/* .
+owner="${1:-nix-community}"
+branch="${2:-master}"
+curl -L -s "https://github.com/${owner}/poetry2nix/archive/${branch}.tar.gz" | tar -xz
+mv "poetry2nix-${branch}"/* .
 
 mkdir build
 cp *.* build/
