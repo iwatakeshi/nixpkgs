@@ -18030,7 +18030,7 @@ with pkgs;
 
   arrayfire = callPackage ../development/libraries/arrayfire {};
 
-  arrow-cpp = callPackage ../development/libraries/arrow-cpp {};
+  arrow-cpp = callPackage ../development/libraries/arrow-cpp { abseil-cpp = abseil-cpp_202111; };
 
   arrow-glib = callPackage ../development/libraries/arrow-glib {};
 

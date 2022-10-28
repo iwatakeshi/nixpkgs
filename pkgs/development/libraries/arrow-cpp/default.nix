@@ -53,27 +53,29 @@ assert lib.asserts.assertMsg
 
 let
   arrow-testing = fetchFromGitHub {
+    name = "arrow-testing";
     owner = "apache";
     repo = "arrow-testing";
-    rev = "5bab2f264a23f5af68f69ea93d24ef1e8e77fc88";
-    hash = "sha256-Pxx8ohUpXb5u1995IvXmxQMqWiDJ+7LAll/AjQP7ph8=";
+    rev = "00c483283433b4c02cb811f260dbe35414c806a4";
+    hash = "sha256-x645DFowLk0e4JN2hI6asWlJlhN36vg5/eC3wTbFI2k=";
   };
 
   parquet-testing = fetchFromGitHub {
+    name = "parquet-testing";
     owner = "apache";
     repo = "parquet-testing";
-    rev = "aafd3fc9df431c2625a514fb46626e5614f1d199";
-    hash = "sha256-cO5t/mgsbBhbSefx8EMGTyxmgTjhZ8mFujkFQ3p/JS0=";
+    rev = "e13af117de7c4f0a4d9908ae3827b3ab119868f3";
+    hash = "sha256-rVI9zyk9IRDlKv4u8BeMb0HRdWLfCpqOlYCeUdA7BB8=";
   };
 
 in
 stdenv.mkDerivation rec {
   pname = "arrow-cpp";
-  version = "9.0.0";
+  version = "10.0.0";
 
   src = fetchurl {
     url = "mirror://apache/arrow/arrow-${version}/apache-arrow-${version}.tar.gz";
-    hash = "sha256-qaAz8KNJAomZj0WGgNGVec8HkRcXumWv3my4AHD3qbU=";
+    hash = "sha256-W0b6TFT1Pl3wAZ/g+dQh6T/JBrYl6+jonu0BDVYfHxI=";
   };
   sourceRoot = "apache-arrow-${version}/cpp";
 
@@ -98,8 +100,8 @@ stdenv.mkDerivation rec {
   ARROW_XSIMD_URL = fetchFromGitHub {
     owner = "xtensor-stack";
     repo = "xsimd";
-    rev = "8.1.0";
-    hash = "sha256-Aqs6XJkGjAjGAp0PprabSM4m+32M/UXpSHppCHdzaZk=";
+    rev = "9.0.1";
+    hash = "sha256-onALN6agtrHWigtFlCeefD9CiRZI4Y690XTzy2UDnrk=";
   };
 
   ARROW_SUBSTRAIT_URL = fetchFromGitHub {
@@ -206,8 +208,8 @@ stdenv.mkDerivation rec {
     "-DARROW_TEST_LINKAGE=static"
   ] ++ lib.optionals stdenv.isDarwin [
     "-DCMAKE_INSTALL_RPATH=@loader_path/../lib" # needed for tools executables
-  ] ++ lib.optional (!stdenv.isx86_64) "-DARROW_USE_SIMD=OFF"
-  ++ lib.optional enableS3 "-DAWSSDK_CORE_HEADER_FILE=${aws-sdk-cpp}/include/aws/core/Aws.h";
+  ] ++ lib.optionals (!stdenv.isx86_64) [ "-DARROW_USE_SIMD=OFF" ]
+  ++ lib.optionals enableS3 [ "-DAWSSDK_CORE_HEADER_FILE=${aws-sdk-cpp}/include/aws/core/Aws.h" ];
 
   doInstallCheck = true;
   ARROW_TEST_DATA = lib.optionalString doInstallCheck "${arrow-testing}/data";
