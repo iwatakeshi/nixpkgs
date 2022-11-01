@@ -231,26 +231,18 @@ stdenv.mkDerivation rec {
         "TestS3FSGeneric.*"
       ];
     in
-    lib.optionalString doInstallCheck "-${builtins.concatStringsSep ":" filteredTests}";
+    lib.optionalString doInstallCheck "-${lib.concatStringsSep ":" filteredTests}";
   __darwinAllowLocalNetworking = true;
   installCheckInputs = [ perl which sqlite ] ++ lib.optional enableS3 minio;
-  installCheckPhase =
-    let
-      excludedTests = lib.optionals stdenv.isDarwin [
-        # Some plasma tests need to be patched to use a shorter AF_UNIX socket
-        # path on Darwin. See https://github.com/NixOS/nix/pull/1085
-        "plasma-external-store-tests"
-        "plasma-client-tests"
-      ] ++ [ "arrow-gcsfs-test" ];
-    in
-    ''
-      runHook preInstallCheck
 
-      ctest -L unittest \
-        --exclude-regex '^(${builtins.concatStringsSep "|" excludedTests})$'
+  disabledTests = [ "arrow-gcsfs-test" ];
+  installCheckPhase = ''
+    runHook preInstallCheck
 
-      runHook postInstallCheck
-    '';
+    ctest -L unittest --exclude-regex '^(${lib.concatStringsSep "|" disabledTests})$'
+
+    runHook postInstallCheck
+  '';
 
   meta = with lib; {
     description = "A cross-language development platform for in-memory data";
