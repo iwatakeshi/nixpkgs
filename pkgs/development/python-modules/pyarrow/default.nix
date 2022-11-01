@@ -61,9 +61,11 @@ buildPythonPackage rec {
   PYARROW_WITH_FLIGHT = zero_or_one _arrow-cpp.enableFlight;
   PYARROW_WITH_HDFS = zero_or_one true;
   PYARROW_WITH_PARQUET = zero_or_one true;
+  PYARROW_WITH_PARQUET_ENCRYPTION = zero_or_one true;
   # Plasma is deprecated since arrow 10.0.0
   PYARROW_WITH_PLASMA = zero_or_one false;
   PYARROW_WITH_S3 = zero_or_one _arrow-cpp.enableS3;
+  PYARROW_WITH_GCS = zero_or_one _arrow-cpp.enableGcs;
   # do this manually to avoid having to patch pyarrow, to handle pyarrow's
   # assumption of permissions of bundled arrow-cpp headers
   PYARROW_BUNDLE_ARROW_CPP_HEADERS = zero_or_one false;
@@ -118,7 +120,12 @@ buildPythonPackage rec {
     "--deselect=pyarrow/tests/test_flight.py::test_large_descriptor"
     "--deselect=pyarrow/tests/test_flight.py::test_large_metadata_client"
     "--deselect=pyarrow/tests/test_flight.py::test_none_action_side_effect"
+  ] ++ lib.optionals stdenv.isLinux [
+    # this test requires local networking
+    "--deselect=pyarrow/tests/test_fs.py::test_filesystem_from_uri_gcs"
   ];
+
+  disabledTests = [ "GcsFileSystem" ];
 
   dontUseSetuptoolsCheck = true;
 

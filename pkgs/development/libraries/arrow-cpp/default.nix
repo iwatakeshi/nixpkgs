@@ -200,6 +200,7 @@ stdenv.mkDerivation rec {
     "-DARROW_PARQUET=ON"
     "-DARROW_SUBSTRAIT=ON"
     "-DPARQUET_BUILD_EXECUTABLES=ON"
+    "-DPARQUET_REQUIRE_ENCRYPTION=ON"
     "-DARROW_FLIGHT=${if enableFlight then "ON" else "OFF"}"
     "-DARROW_FLIGHT_TESTING=${if enableFlight then "ON" else "OFF"}"
     "-DARROW_S3=${if enableS3 then "ON" else "OFF"}"
