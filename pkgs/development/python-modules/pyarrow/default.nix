@@ -63,12 +63,25 @@ buildPythonPackage rec {
   PYARROW_WITH_FLIGHT = zero_or_one _arrow-cpp.enableFlight;
   PYARROW_WITH_HDFS = zero_or_one true;
   PYARROW_WITH_PARQUET = zero_or_one true;
-  PYARROW_WITH_PLASMA = zero_or_one (!stdenv.isDarwin);
+  # Plasma is deprecated since arrow 10.0.0
+  PYARROW_WITH_PLASMA = zero_or_one false;
   PYARROW_WITH_S3 = zero_or_one _arrow-cpp.enableS3;
+  # do this manually to avoid having to patch pyarrow, to handle pyarrow's
+  # assumption of permissions of bundled arrow-cpp headers
+  PYARROW_BUNDLE_ARROW_CPP_HEADERS = zero_or_one false;
 
-  PYARROW_CMAKE_OPTIONS = [
-    "-DCMAKE_INSTALL_RPATH=${ARROW_HOME}/lib"
-  ];
+  PYARROW_CMAKE_OPTIONS =
+    let
+      components = [
+        "Arrow"
+        "ArrowDataset"
+        "ArrowFlight"
+        "Parquet"
+      ];
+    in
+    [
+      "-DCMAKE_INSTALL_RPATH=${ARROW_HOME}/lib"
+    ] ++ map (c: "-D${c}_DIR=${ARROW_HOME}/lib/cmake/${c}") components;
 
   ARROW_HOME = _arrow-cpp;
   PARQUET_HOME = _arrow-cpp;
@@ -123,7 +136,7 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [
     "pyarrow"
-  ] ++ map (module: "pyarrow.${module}") ([
+  ] ++ map (module: "pyarrow.${module}") [
     "compute"
     "csv"
     "dataset"
@@ -133,9 +146,7 @@ buildPythonPackage rec {
     "hdfs"
     "json"
     "parquet"
-  ] ++ lib.optionals (!stdenv.isDarwin) [
-    "plasma"
-  ]);
+  ];
 
   meta = with lib; {
     description = "A cross-language development platform for in-memory data";
