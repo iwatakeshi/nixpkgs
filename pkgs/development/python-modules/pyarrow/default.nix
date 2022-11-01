@@ -17,7 +17,6 @@
 , pkg-config
 , scipy
 , setuptools-scm
-, six
 }:
 
 let
@@ -47,7 +46,6 @@ buildPythonPackage rec {
     fsspec
     numpy
     scipy
-    six
   ];
 
   checkInputs = [
