@@ -7373,7 +7373,9 @@ with pkgs;
 
   google-guest-oslogin = callPackage ../tools/virtualization/google-guest-oslogin { };
 
-  google-cloud-cpp = callPackage ../development/libraries/google-cloud-cpp { };
+  google-cloud-cpp = callPackage ../development/libraries/google-cloud-cpp {
+    abseil-cpp = abseil-cpp_202111;
+  };
 
   google-java-format = callPackage ../development/tools/google-java-format { };
 
@@ -18030,7 +18032,9 @@ with pkgs;
 
   arrayfire = callPackage ../development/libraries/arrayfire {};
 
-  arrow-cpp = callPackage ../development/libraries/arrow-cpp { abseil-cpp = abseil-cpp_202111; };
+  arrow-cpp = callPackage ../development/libraries/arrow-cpp {
+    abseil-cpp = abseil-cpp_202111;
+  };
 
   arrow-glib = callPackage ../development/libraries/arrow-glib {};
 
@@ -19113,10 +19117,7 @@ with pkgs;
   grilo-plugins = callPackage ../development/libraries/grilo-plugins { };
 
   grpc = callPackage ../development/libraries/grpc {
-    # grpc builds with c++14 so abseil must also be built that way
-    abseil-cpp = abseil-cpp_202111.override {
-      cxxStandard = "14";
-    };
+    abseil-cpp = abseil-cpp_202111;
   };
 
   gsettings-qt = libsForQt5.callPackage ../development/libraries/gsettings-qt { };
