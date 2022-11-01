@@ -183,7 +183,7 @@ stdenv.mkDerivation rec {
     "-DARROW_IPC=ON"
     "-DARROW_JEMALLOC=${if enableJemalloc then "ON" else "OFF"}"
     "-DARROW_JSON=ON"
-    "-DARROW_PLASMA=ON"
+    "-DARROW_PLASMA=OFF"
     # Disable Python for static mode because openblas is currently broken there.
     "-DARROW_PYTHON=${if enableShared then "ON" else "OFF"}"
     "-DARROW_USE_GLOG=ON"
