@@ -140,9 +140,6 @@ stdenv.mkDerivation rec {
     utf8proc
     zlib
     zstd
-  ] ++ lib.optionals enableShared [
-    python3.pkgs.python
-    python3.pkgs.numpy
   ] ++ lib.optionals enableFlight [
     grpc
     openssl
@@ -176,16 +173,12 @@ stdenv.mkDerivation rec {
     "-DARROW_COMPUTE=ON"
     "-DARROW_CSV=ON"
     "-DARROW_DATASET=ON"
-    "-DARROW_ENGINE=ON"
     "-DARROW_FILESYSTEM=ON"
     "-DARROW_FLIGHT_SQL=${if enableFlight then "ON" else "OFF"}"
     "-DARROW_HDFS=ON"
     "-DARROW_IPC=ON"
     "-DARROW_JEMALLOC=${if enableJemalloc then "ON" else "OFF"}"
     "-DARROW_JSON=ON"
-    "-DARROW_PLASMA=OFF"
-    # Disable Python for static mode because openblas is currently broken there.
-    "-DARROW_PYTHON=${if enableShared then "ON" else "OFF"}"
     "-DARROW_USE_GLOG=ON"
     "-DARROW_WITH_BACKTRACE=ON"
     "-DARROW_WITH_BROTLI=ON"
@@ -196,15 +189,14 @@ stdenv.mkDerivation rec {
     "-DARROW_WITH_ZLIB=ON"
     "-DARROW_WITH_ZSTD=ON"
     "-DARROW_MIMALLOC=ON"
-    # Parquet options:
-    "-DARROW_PARQUET=ON"
     "-DARROW_SUBSTRAIT=ON"
-    "-DPARQUET_BUILD_EXECUTABLES=ON"
-    "-DPARQUET_REQUIRE_ENCRYPTION=ON"
     "-DARROW_FLIGHT=${if enableFlight then "ON" else "OFF"}"
-    "-DARROW_FLIGHT_TESTING=${if enableFlight then "ON" else "OFF"}"
     "-DARROW_S3=${if enableS3 then "ON" else "OFF"}"
     "-DARROW_GCS=${if enableGcs then "ON" else "OFF"}"
+    # Parquet options:
+    "-DARROW_PARQUET=ON"
+    "-DPARQUET_BUILD_EXECUTABLES=ON"
+    "-DPARQUET_REQUIRE_ENCRYPTION=ON"
   ] ++ lib.optionals (!enableShared) [
     "-DARROW_TEST_LINKAGE=static"
   ] ++ lib.optionals stdenv.isDarwin [
@@ -233,10 +225,18 @@ stdenv.mkDerivation rec {
       ];
     in
     lib.optionalString doInstallCheck "-${lib.concatStringsSep ":" filteredTests}";
-  __darwinAllowLocalNetworking = true;
-  installCheckInputs = [ perl which sqlite ] ++ lib.optional enableS3 minio;
 
-  disabledTests = [ "arrow-gcsfs-test" ];
+  __darwinAllowLocalNetworking = true;
+
+  installCheckInputs = [ perl which sqlite ]
+    ++ lib.optionals enableS3 [ minio ]
+    ++ lib.optionals enableFlight [ python3 ];
+
+  disabledTests = [
+    # requires networking
+    "arrow-gcsfs-test"
+  ];
+
   installCheckPhase = ''
     runHook preInstallCheck
 
