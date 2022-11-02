@@ -21,13 +21,11 @@
 
 let
   zero_or_one = cond: if cond then 1 else 0;
-
-  _arrow-cpp = arrow-cpp.override { python3 = python; };
 in
 
 buildPythonPackage rec {
   pname = "pyarrow";
-  inherit (_arrow-cpp) version src;
+  inherit (arrow-cpp) version src;
 
   disabled = pythonOlder "3.7";
 
@@ -39,6 +37,8 @@ buildPythonPackage rec {
     pkg-config
     setuptools-scm
   ];
+
+  buildInputs = [ arrow-cpp ];
 
   propagatedBuildInputs = [
     cffi
@@ -58,37 +58,26 @@ buildPythonPackage rec {
   PYARROW_BUILD_TYPE = "release";
 
   PYARROW_WITH_DATASET = zero_or_one true;
-  PYARROW_WITH_FLIGHT = zero_or_one _arrow-cpp.enableFlight;
+  PYARROW_WITH_FLIGHT = zero_or_one arrow-cpp.enableFlight;
   PYARROW_WITH_HDFS = zero_or_one true;
   PYARROW_WITH_PARQUET = zero_or_one true;
   PYARROW_WITH_PARQUET_ENCRYPTION = zero_or_one true;
   # Plasma is deprecated since arrow 10.0.0
   PYARROW_WITH_PLASMA = zero_or_one false;
-  PYARROW_WITH_S3 = zero_or_one _arrow-cpp.enableS3;
-  PYARROW_WITH_GCS = zero_or_one _arrow-cpp.enableGcs;
-  # do this manually to avoid having to patch pyarrow, to handle pyarrow's
-  # assumption of permissions of bundled arrow-cpp headers
+  PYARROW_WITH_S3 = zero_or_one arrow-cpp.enableS3;
+  PYARROW_WITH_GCS = zero_or_one arrow-cpp.enableGcs;
   PYARROW_BUNDLE_ARROW_CPP_HEADERS = zero_or_one false;
 
-  PYARROW_CMAKE_OPTIONS =
-    let
-      components = [
-        "Arrow"
-        "ArrowDataset"
-        "ArrowFlight"
-        "Parquet"
-      ];
-    in
-    [
-      "-DCMAKE_INSTALL_RPATH=${ARROW_HOME}/lib"
-    ] ++ map (c: "-D${c}_DIR=${ARROW_HOME}/lib/cmake/${c}") components;
+  PYARROW_CMAKE_OPTIONS = [
+    "-DCMAKE_INSTALL_RPATH=${ARROW_HOME}/lib"
+  ];
 
-  ARROW_HOME = _arrow-cpp;
-  PARQUET_HOME = _arrow-cpp;
+  ARROW_HOME = arrow-cpp;
+  PARQUET_HOME = arrow-cpp;
 
-  ARROW_TEST_DATA = lib.optionalString doCheck _arrow-cpp.ARROW_TEST_DATA;
+  ARROW_TEST_DATA = lib.optionalString doCheck arrow-cpp.ARROW_TEST_DATA;
 
-  doCheck = true;
+  doCheck = false;
 
   dontUseCmakeConfigure = true;
 
@@ -96,6 +85,13 @@ buildPythonPackage rec {
 
   preBuild = ''
     export PYARROW_PARALLEL=$NIX_BUILD_CORES
+  '';
+
+  postInstall = ''
+    # copy the pyarrow C++ header files to the appropriate location
+    pyarrow_include="$out/${python.sitePackages}/pyarrow/include"
+    mkdir -p "$pyarrow_include/arrow/python"
+    find "$PWD/pyarrow/src/arrow" -type f -name '*.h' -exec cp {} "$pyarrow_include/arrow/python" \;
   '';
 
   pytestFlagsArray = [
@@ -113,8 +109,9 @@ buildPythonPackage rec {
     # Flaky test
     "--deselect=pyarrow/tests/test_flight.py::test_roundtrip_errors"
     "--deselect=pyarrow/tests/test_pandas.py::test_threaded_pandas_import"
-    "--deselect=pyarrow/tests/test_cython.py"
+    # requires bundled arrow-cpp headers
     "--deselect=pyarrow/tests/test_misc.py::test_get_include"
+    "--deselect=pyarrow/tests/test_cython.py"
   ] ++ lib.optionals stdenv.isDarwin [
     # Requires loopback networking
     "--deselect=pyarrow/tests/test_ipc.py::test_socket_"
